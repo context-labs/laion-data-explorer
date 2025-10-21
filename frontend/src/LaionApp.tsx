@@ -3,6 +3,7 @@ import {
   AtomIcon,
   BarChart3Icon,
   BarChartIcon,
+  BookTextIcon,
   ChartNetworkIcon,
   ChevronRightIcon,
   LayoutGridIcon,
@@ -17,12 +18,18 @@ import {
   Card,
   Centered,
   cn,
+  DialogRoot,
+  DialogContent,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogTitle,
   Row,
+  Select,
   Sheet,
   SheetContent,
   SheetTrigger,
+  Skeleton,
   Slider,
   ThemeToggle,
   InferenceIcon,
@@ -46,6 +53,8 @@ import LaionLightLogo from "./assets/logos/Laion-light.svg";
 import { ClusterLegend } from "./components/ClusterLegend";
 import { ClusterVisualization } from "./components/ClusterVisualization";
 import { DistributionChart } from "./components/DistributionChart";
+import { LearnMoreContent } from "./components/LearnMoreContent";
+import { LearnMoreSheet } from "./components/LearnMoreSheet";
 import { PaperDetail } from "./components/PaperDetail";
 import { TemporalHeatmap } from "./components/TemporalHeatmap";
 import { TemporalStackedChart } from "./components/TemporalStackedChart";
@@ -73,7 +82,7 @@ function SwipeableSheetContent({
 
           sm:w-[350px]
         `,
-        className,
+        className
       )}
       closeButtonAriaLabel="Close Mobile Navigation Menu"
       onTouchEnd={onTouchEnd}
@@ -127,10 +136,12 @@ type MobileNavigationProps = {
   onSearchSubmit: (e: React.FormEvent) => void;
   totalPapers: number;
   setMobileMenuOpen: (open: boolean) => void;
+  loading: boolean;
 };
 
 function MobileNavigation({
   clusters,
+  loading,
   onClearAll,
   onRandomPaper,
   onSearchChange,
@@ -177,21 +188,23 @@ function MobileNavigation({
         </div>
 
         {/* Controls for 3D View */}
-        <div className="space-y-3 border-t pt-4">
-          <Button
-            type="button"
-            onClick={() => {
-              onRandomPaper();
-              setMobileMenuOpen(false);
-            }}
-            variant="outline"
-            size="xs"
-            className="flex w-full items-center gap-2"
-          >
-            <MicroscopeIcon className="h-4 w-4" />
-            Select a Random Paper
-          </Button>
-        </div>
+        {!loading && (
+          <div className="space-y-3 border-t pt-4">
+            <Button
+              type="button"
+              onClick={() => {
+                onRandomPaper();
+                setMobileMenuOpen(false);
+              }}
+              variant="outline"
+              size="xs"
+              className="flex w-full items-center gap-2"
+            >
+              <MicroscopeIcon className="h-4 w-4" />
+              Select a Random Paper
+            </Button>
+          </div>
+        )}
 
         {/* Theme Toggle */}
         <div className="border-t pt-4">
@@ -210,23 +223,32 @@ function MobileNavigation({
         </div>
 
         {/* Cluster Legend */}
-        <div className="border-t pt-4">
-          <ClusterLegend
-            clusters={clusters}
-            selectedClusterIds={selectedClusterIds}
-            onToggleCluster={onToggleCluster}
-            onSelectAll={onSelectAll}
-            onClearAll={onClearAll}
-            onSelectRandom={onSelectRandom}
-            isCollapsed={false}
-            onToggleCollapse={() => null}
-            viewMode={viewMode}
-            paperSearchQuery={searchQuery}
-            onPaperSearchChange={onSearchChange}
-            onPaperSearchSubmit={onSearchSubmit}
-            totalPapers={totalPapers}
-          />
-        </div>
+        {loading ? (
+          <div className="space-y-3 border-t pt-4">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        ) : (
+          <div className="border-t pt-4">
+            <ClusterLegend
+              clusters={clusters}
+              selectedClusterIds={selectedClusterIds}
+              onToggleCluster={onToggleCluster}
+              onSelectAll={onSelectAll}
+              onClearAll={onClearAll}
+              onSelectRandom={onSelectRandom}
+              isCollapsed={false}
+              onToggleCollapse={() => null}
+              viewMode={viewMode}
+              paperSearchQuery={searchQuery}
+              onPaperSearchChange={onSearchChange}
+              onPaperSearchSubmit={onSearchSubmit}
+              totalPapers={totalPapers}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -237,7 +259,7 @@ export default function LaionApp() {
   const [clusters, setClusters] = useState<ClusterInfo[]>([]);
   const [selectedPaperId, setSelectedPaperId] = useState<number | null>(null);
   const [selectedClusterIds, setSelectedClusterIds] = useState<Set<number>>(
-    new Set(),
+    new Set()
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -249,6 +271,8 @@ export default function LaionApp() {
   >("3d");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [layoutType, setLayoutType] = useState<LayoutType>("original");
+  const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(true);
+  const [learnMoreSheetOpen, setLearnMoreSheetOpen] = useState(false);
 
   // Heatmap controls
   const [heatmapMinYear, setHeatmapMinYear] = useState(1990);
@@ -293,7 +317,7 @@ export default function LaionApp() {
           setAllPapers(papersData.papers);
           setClusters(clustersData.clusters);
           setLoading(false);
-        },
+        }
       )
       .catch((err: Error) => {
         console.error("Error fetching papers and clusters", err);
@@ -332,7 +356,7 @@ export default function LaionApp() {
     }
 
     fetchCompressed<PapersResponse>(
-      getApiUrl(`/api/search?q=${encodeURIComponent(searchQuery)}`),
+      getApiUrl(`/api/search?q=${encodeURIComponent(searchQuery)}`)
     )
       .then((data) => setAllPapers(data.papers))
       .catch((err: Error) => setError(err.message));
@@ -377,52 +401,12 @@ export default function LaionApp() {
   const handleHeatmapClick = (clusterId: number, year: number) => {
     // Filter papers by cluster and year, then show the first one
     const filteredPapers = papers.filter(
-      (p) => p.cluster_id === clusterId && p.publication_year === year,
+      (p) => p.cluster_id === clusterId && p.publication_year === year
     );
     if (filteredPapers.length > 0 && filteredPapers[0]) {
       setSelectedPaperId(filteredPapers[0].id);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex h-screen flex-col bg-background">
-        <div
-          className={`flex h-screen flex-col items-center justify-center gap-6`}
-        >
-          <div className="flex flex-col items-center gap-4">
-            <InferenceIcon height={32} width={220} />
-            <img
-              src={LaionLightLogo}
-              alt="LAION"
-              className={`
-                h-20
-
-                dark:hidden
-              `}
-            />
-            <img
-              src={LaionDarkLogo}
-              alt="LAION"
-              className={`
-                hidden h-20
-
-                dark:block
-              `}
-            />
-          </div>
-          <h3 className="text-foreground">
-            Initializing Science Dataset Explorer
-            <span className="loading-dots ml-1 inline-block">
-              <span>.</span>
-              <span>.</span>
-              <span>.</span>
-            </span>
-          </h3>
-        </div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -496,6 +480,7 @@ export default function LaionApp() {
               onSearchSubmit={handleSearch}
               totalPapers={papers.length}
               setMobileMenuOpen={setMobileMenuOpen}
+              loading={loading}
             />
           </SwipeableSheetContent>
         </Sheet>
@@ -579,71 +564,39 @@ export default function LaionApp() {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              This is a dataset of structured summaries from 100,000 scientific
-              papers generated using a custom fine-tuned model. Learn more.
-            </p>
+            <div className="flex items-center gap-3">
+              <Button
+                size="xs"
+                onClick={() => setLearnMoreSheetOpen(true)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <BookTextIcon className="mr-2 h-4 w-4" />
+                Learn More
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                This is a dataset of structured summaries from 100,000
+                scientific papers generated using a custom fine-tuned model.
+              </p>
+            </div>
             <Row className="items-center gap-4">
-              {viewMode === "3d" && (
+              {!loading && viewMode === "3d" && (
                 <>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      onClick={() => setLayoutType("original")}
-                      variant={
-                        layoutType === "original" ? "default" : "outline"
-                      }
-                      size="xs"
-                      className="flex items-center"
-                    >
-                      Scatter
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => setLayoutType("sphere")}
-                      variant={layoutType === "sphere" ? "default" : "outline"}
-                      size="xs"
-                      className="flex items-center"
-                    >
-                      Sphere
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => setLayoutType("galaxy")}
-                      variant={layoutType === "galaxy" ? "default" : "outline"}
-                      size="xs"
-                      className="flex items-center"
-                    >
-                      Galaxy
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => setLayoutType("wave")}
-                      variant={layoutType === "wave" ? "default" : "outline"}
-                      size="xs"
-                      className="flex items-center"
-                    >
-                      Wave
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => setLayoutType("helix")}
-                      variant={layoutType === "helix" ? "default" : "outline"}
-                      size="xs"
-                      className="flex items-center"
-                    >
-                      Helix
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => setLayoutType("torus")}
-                      variant={layoutType === "torus" ? "default" : "outline"}
-                      size="xs"
-                      className="flex items-center"
-                    >
-                      Torus
-                    </Button>
-                  </div>
+                  <Select
+                    value={layoutType}
+                    onValueChange={(value) =>
+                      setLayoutType(value as LayoutType)
+                    }
+                    options={[
+                      { value: "original", label: "Scatter" },
+                      { value: "sphere", label: "Sphere" },
+                      { value: "galaxy", label: "Galaxy" },
+                      { value: "wave", label: "Wave" },
+                      { value: "helix", label: "Helix" },
+                      { value: "torus", label: "Torus" },
+                    ]}
+                    placeholder="Select layout"
+                    className="w-[160px]"
+                  />
                   <Button
                     type="button"
                     onClick={handleRandomPaper}
@@ -656,7 +609,7 @@ export default function LaionApp() {
                   </Button>
                 </>
               )}
-              {viewMode === "distribution" && (
+              {!loading && viewMode === "distribution" && (
                 <div className="flex items-center gap-3">
                   <label className="text-sm text-foreground">
                     Clusters:{" "}
@@ -704,83 +657,131 @@ export default function LaionApp() {
                 ${sidebarCollapsed ? "w-10 overflow-hidden" : "w-[360px]"}
               `}
             >
-              <ClusterLegend
-                clusters={clusters}
-                selectedClusterIds={selectedClusterIds}
-                onToggleCluster={handleToggleCluster}
-                onSelectAll={handleSelectAll}
-                onClearAll={handleClearAll}
-                onSelectRandom={handleSelectRandom}
-                isCollapsed={sidebarCollapsed}
-                onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-                viewMode={viewMode}
-                paperSearchQuery={searchQuery}
-                onPaperSearchChange={setSearchQuery}
-                onPaperSearchSubmit={handleSearch}
-                totalPapers={papers.length}
-              />
+              {loading ? (
+                <div className="space-y-4 p-4">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-64 w-full" />
+                  <Skeleton className="h-32 w-full" />
+                </div>
+              ) : (
+                <ClusterLegend
+                  clusters={clusters}
+                  selectedClusterIds={selectedClusterIds}
+                  onToggleCluster={handleToggleCluster}
+                  onSelectAll={handleSelectAll}
+                  onClearAll={handleClearAll}
+                  onSelectRandom={handleSelectRandom}
+                  isCollapsed={sidebarCollapsed}
+                  onToggleCollapse={() =>
+                    setSidebarCollapsed(!sidebarCollapsed)
+                  }
+                  viewMode={viewMode}
+                  paperSearchQuery={searchQuery}
+                  onPaperSearchChange={setSearchQuery}
+                  onPaperSearchSubmit={handleSearch}
+                  totalPapers={papers.length}
+                />
+              )}
             </aside>
             <main className="flex-1 overflow-hidden bg-background p-0">
-              <ClusterVisualization
-                papers={papers}
-                clusters={clusters}
-                onPaperClick={(paperId) => {
-                  if (!selectedPaperId) {
-                    setSelectedPaperId(paperId);
-                  }
-                }}
-                selectedClusterIds={selectedClusterIds}
-                layoutType={layoutType}
-              />
+              {loading ? (
+                <div className="flex h-full items-center justify-center">
+                  <div className="space-y-4 text-center">
+                    <Skeleton className="mx-auto h-64 w-64 rounded-full" />
+                    <Skeleton className="mx-auto h-6 w-48" />
+                  </div>
+                </div>
+              ) : (
+                <ClusterVisualization
+                  papers={papers}
+                  clusters={clusters}
+                  onPaperClick={(paperId) => {
+                    if (!selectedPaperId) {
+                      setSelectedPaperId(paperId);
+                    }
+                  }}
+                  selectedClusterIds={selectedClusterIds}
+                  layoutType={layoutType}
+                />
+              )}
             </main>
           </>
         ) : viewMode === "distribution" ? (
           <main className="flex-1 overflow-hidden bg-background">
-            <DistributionChart
-              onClusterClick={(clusterId) => {
-                // When clicking a cluster in the distribution chart, switch to 3D view and select that cluster
-                setViewMode("3d");
-                setSelectedClusterIds(new Set([clusterId]));
-              }}
-              topN={distributionTopN}
-              onTotalClustersLoaded={setTotalClusters}
-            />
+            {loading ? (
+              <div className="flex h-full items-center justify-center p-8">
+                <div className="w-full max-w-4xl space-y-4">
+                  <Skeleton className="h-12 w-64" />
+                  <Skeleton className="h-[500px] w-full" />
+                </div>
+              </div>
+            ) : (
+              <DistributionChart
+                onClusterClick={(clusterId) => {
+                  // When clicking a cluster in the distribution chart, switch to 3D view and select that cluster
+                  setViewMode("3d");
+                  setSelectedClusterIds(new Set([clusterId]));
+                }}
+                topN={distributionTopN}
+                onTotalClustersLoaded={setTotalClusters}
+              />
+            )}
           </main>
         ) : viewMode === "heatmap" ? (
           <main className="flex-1 overflow-hidden bg-background">
-            <TemporalHeatmap
-              onPaperClick={handleHeatmapClick}
-              minYear={heatmapMinYear}
-              maxYear={heatmapMaxYear}
-              topN={heatmapTopN}
-              sortBy={heatmapSortBy}
-              colorScale={heatmapColorScale}
-              normalizeByYear={heatmapNormalizeByYear}
-              onMinYearChange={setHeatmapMinYear}
-              onMaxYearChange={setHeatmapMaxYear}
-              onTopNChange={setHeatmapTopN}
-              onSortByChange={setHeatmapSortBy}
-              onColorScaleChange={setHeatmapColorScale}
-              onNormalizeByYearChange={setHeatmapNormalizeByYear}
-            />
+            {loading ? (
+              <div className="flex h-full items-center justify-center p-8">
+                <div className="w-full max-w-6xl space-y-4">
+                  <Skeleton className="h-12 w-64" />
+                  <Skeleton className="h-[600px] w-full" />
+                </div>
+              </div>
+            ) : (
+              <TemporalHeatmap
+                onPaperClick={handleHeatmapClick}
+                minYear={heatmapMinYear}
+                maxYear={heatmapMaxYear}
+                topN={heatmapTopN}
+                sortBy={heatmapSortBy}
+                colorScale={heatmapColorScale}
+                normalizeByYear={heatmapNormalizeByYear}
+                onMinYearChange={setHeatmapMinYear}
+                onMaxYearChange={setHeatmapMaxYear}
+                onTopNChange={setHeatmapTopN}
+                onSortByChange={setHeatmapSortBy}
+                onColorScaleChange={setHeatmapColorScale}
+                onNormalizeByYearChange={setHeatmapNormalizeByYear}
+              />
+            )}
           </main>
         ) : (
           <main className="flex-1 overflow-hidden bg-background">
-            <TemporalStackedChart
-              onPaperClick={handleHeatmapClick}
-              minYear={stackedMinYear}
-              maxYear={stackedMaxYear}
-              topN={stackedTopN}
-              stackMode={stackedStackMode}
-              sortBy={stackedSortBy}
-              showOther={stackedShowOther}
-              onMinYearChange={setStackedMinYear}
-              onMaxYearChange={setStackedMaxYear}
-              onTopNChange={setStackedTopN}
-              onStackModeChange={setStackedStackMode}
-              onSortByChange={setStackedSortBy}
-              onShowOtherChange={setStackedShowOther}
-            />
+            {loading ? (
+              <div className="flex h-full items-center justify-center p-8">
+                <div className="w-full max-w-6xl space-y-4">
+                  <Skeleton className="h-12 w-64" />
+                  <Skeleton className="h-[600px] w-full" />
+                </div>
+              </div>
+            ) : (
+              <TemporalStackedChart
+                onPaperClick={handleHeatmapClick}
+                minYear={stackedMinYear}
+                maxYear={stackedMaxYear}
+                topN={stackedTopN}
+                stackMode={stackedStackMode}
+                sortBy={stackedSortBy}
+                showOther={stackedShowOther}
+                onMinYearChange={setStackedMinYear}
+                onMaxYearChange={setStackedMaxYear}
+                onTopNChange={setStackedTopN}
+                onStackModeChange={setStackedStackMode}
+                onSortByChange={setStackedSortBy}
+                onShowOtherChange={setStackedShowOther}
+              />
+            )}
           </main>
         )}
       </div>
@@ -788,6 +789,37 @@ export default function LaionApp() {
         paperId={selectedPaperId}
         onClose={() => setSelectedPaperId(null)}
         onPaperClick={(paperId) => setSelectedPaperId(paperId)}
+      />
+      <DialogRoot open={welcomeDialogOpen} onOpenChange={setWelcomeDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Welcome to the Science Dataset Explorer</DialogTitle>
+            <DialogDescription>
+              Explore a comprehensive dataset of scientific research papers
+            </DialogDescription>
+          </DialogHeader>
+          <div className="p-4">
+            <LearnMoreContent />
+          </div>
+          <DialogFooter className="flex items-center justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setWelcomeDialogOpen(false);
+                setLearnMoreSheetOpen(true);
+              }}
+            >
+              Learn More
+            </Button>
+            <Button onClick={() => setWelcomeDialogOpen(false)}>
+              View Dataset
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
+      <LearnMoreSheet
+        open={learnMoreSheetOpen}
+        onClose={() => setLearnMoreSheetOpen(false)}
       />
     </div>
   );

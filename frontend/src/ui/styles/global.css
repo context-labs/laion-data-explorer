@@ -372,9 +372,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
@@ -398,17 +396,20 @@
       transparent 100%
     );
     /* Add inset shadow for glass edge effect */
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.3),
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
       inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
       inset 0 -1px 0 0 rgba(255, 255, 255, 0.05);
   }
 
   .dark .landing-card:hover {
     /* Enhanced hover state */
-    box-shadow:
-      0 20px 40px rgba(0, 0, 0, 0.4),
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
       inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
       inset 0 -1px 0 0 rgba(255, 255, 255, 0.08);
   }
+}
+
+a:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
 }

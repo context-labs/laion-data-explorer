@@ -71,3 +71,7 @@ body {
 .loading-dots span:nth-child(3) {
   animation-delay: 0.4s;
 }
+
+a {
+  text-decoration: underline;
+}
