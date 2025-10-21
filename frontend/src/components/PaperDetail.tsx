@@ -9,7 +9,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "@kuzco/ui-library";
+} from "~/ui";
 
 import type {
   PaperDetail as PaperDetailType,

@@ -1,15 +1,29 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
     "composite": true,
     "emitDeclarationOnly": true,
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
-      "~/ui/*": ["../../packages/ui-library/src/*"],
+      "~/ui": ["./src/ui/index.tsx"],
+      "~/ui/*": ["./src/ui/*"],
       "~/*": ["src/*"]
-    }
+    },
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.json", "vite.config.ts"],
-  "references": [{ "path": "../../packages/ui-library" }]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.json", "vite.config.ts"]
 }

@@ -2,7 +2,7 @@
 @import "./styles/fonts/inter.css";
 
 /* Import the base Tailwind styles from ui-library */
-@import "../../../packages/ui-library/src/styles/global.css";
+@import "./ui/styles/global.css";
 
 :root {
   font-family: "Inter", "JetBrains Mono", sans-serif;

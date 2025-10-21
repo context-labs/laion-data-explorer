@@ -3,8 +3,8 @@ import { createStore } from "jotai";
 import { Provider as JotaiProvider } from "jotai/react";
 import ReactDOM from "react-dom/client";
 
-import { createLocalStorage, LOCAL_STORAGE_KEYS } from "@kuzco/ui-client-utils";
-import { ThemeProvider } from "@kuzco/ui-library";
+import { createLocalStorage, LOCAL_STORAGE_KEYS } from "~/lib/ui-client-utils";
+import { ThemeProvider } from "~/ui";
 
 import { LaionHotKeys } from "./components/LaionHotKeys";
 import LaionApp from "./LaionApp";
@@ -25,5 +25,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <LaionApp />
       </ThemeProvider>
     </JotaiProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );

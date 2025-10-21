@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAtom } from "jotai";
 import Plot from "react-plotly.js";
 
-import { Button, Input, Select, useTheme } from "@kuzco/ui-library";
+import { Button, Input, Select, useTheme } from "~/ui";
 
 import type { ClusterTemporalData, TemporalDataResponse } from "../types";
 import {

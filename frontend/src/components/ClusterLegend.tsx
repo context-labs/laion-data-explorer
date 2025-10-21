@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "lucide-react";
 
-import { Button, Input } from "@kuzco/ui-library";
+import { Button, Input } from "~/ui";
 
 import type { ClusterInfo } from "../types";
 

@@ -15,6 +15,13 @@ tasks:
     cmds:
       - task --list
 
+  setup:
+    desc: Install Python dependencies
+    cmds:
+      - |
+        echo "==> Installing Python dependencies";
+        uv sync
+
   deploy:
     desc: Deploy the Worker to Cloudflare
     cmds:

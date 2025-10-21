@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 
-import { Label, Slider, Switch, useTheme } from "@kuzco/ui-library";
+import { Label, Slider, Switch, useTheme } from "~/ui";
 
 import type { ClusterInfo, PaperSummary } from "../types";
 import type { LayoutType } from "../utils/layoutTransforms";

@@ -26,8 +26,8 @@ import {
   Slider,
   ThemeToggle,
   InferenceIcon,
-} from "@kuzco/ui-library";
-import { ICONS, useSwipeRightDetector } from "@kuzco/ui-shared";
+} from "~/ui";
+import { useSwipeRightDetector } from "~/lib/ui-shared";
 
 import type { HeatmapSortOption } from "./components/TemporalHeatmap";
 import type {

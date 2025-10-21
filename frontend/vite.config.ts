@@ -9,7 +9,7 @@ export default defineConfig({
       include: ["buffer", "process"],
     }),
     tsConfigPaths({
-      projects: ["./tsconfig.json", "../../packages/ui-library/tsconfig.json"],
+      projects: ["./tsconfig.json"],
     }),
     react(),
   ],

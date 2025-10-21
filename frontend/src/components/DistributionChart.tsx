@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import Plot from "react-plotly.js";
 
-import { useTheme } from "@kuzco/ui-library";
+import { useTheme } from "~/ui";
 
 import type { ClusterInfo, ClustersResponse } from "../types";
 import { clustersDataAtom } from "../state/chartDataCache";
