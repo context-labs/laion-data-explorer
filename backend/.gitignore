@@ -1,0 +1,8 @@
+.venv
+.venv-workers
+node_modules
+python_modules
+
+
+data/
+.wrangler/

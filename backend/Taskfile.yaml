@@ -1,0 +1,54 @@
+# Taskfile for Cloudflare Workers (Python) workflow
+# Requires: go-task (https://taskfile.dev) and Cloudflare Wrangler (v3.60+)
+# Optional: Node.js (to install wrangler), Python 3.11+
+
+version: '3'
+
+vars:
+  # Optional env selection for wrangler environments (e.g. "production", "staging").
+  ENV: '{{.ENV | default ""}}'
+  PORT: '{{.PORT | default "8000"}}'
+
+tasks:
+  default:
+    desc: Show common tasks
+    cmds:
+      - task --list
+
+  deploy:
+    desc: Deploy the Worker to Cloudflare
+    cmds:
+      - |
+        echo "==> Deploying Cloudflare Worker";
+        uv run pywrangler deploy
+
+  tail:
+    desc: Stream Worker logs
+    cmds:
+      - |
+        echo "==> Tailing logs";
+        uv run pywrangler tail --format=pretty
+
+  publish-static:
+    desc: Upload local assets to an R2 bucket (requires r2 binding)
+    vars:
+      BUCKET: '{{.BUCKET | default "laion-data"}}'
+      DIR: '{{.DIR | default "public"}}'
+    cmds:
+      - |
+        echo "==> Syncing ./{{.DIR}} to R2 bucket {{.BUCKET}}";
+        wrangler r2 object put --bucket {{.BUCKET}} --local ./{{.DIR}} --recursive
+
+  whoami:
+    desc: Show Cloudflare account and user info
+    cmds:
+      - wrangler whoami
+
+  dev:
+    desc: Run local dev server (Python)
+    cmds:
+      - |
+        echo "==> Starting local dev server";
+        uv run pywrangler dev
+
+  

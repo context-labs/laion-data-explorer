@@ -1,0 +1,22 @@
+name = "laion-api"
+main = "src/worker.py"
+compatibility_date = "2025-10-09"
+compatibility_flags = ["python_workers", "python_dedicated_snapshot"]
+
+[vars]
+R2_ASSETS_URL = "https://laion-data-assets.inference.net"
+
+[env.production.vars]
+R2_ASSETS_URL = "https://laion-data-assets.inference.net"
+
+[[d1_databases]]
+binding = "LAION_DB"                                 # i.e. available in your Worker on env.DB
+database_name = "laion-data-exploration"
+database_id = "48ad4777-ba9c-418b-be05-904dca96a7bf"
+
+[observability]
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true

@@ -1,0 +1,17 @@
+[project]
+name = "laion-api"
+version = "1.0.0"
+description = "LAION Paper Visualizer API - Python Worker for Cloudflare"
+requires-python = ">=3.11"
+
+dependencies = [
+    "fastapi>=0.110.0",
+    "pydantic>=2.6.0",
+    "webtypy>=0.1.7",
+]
+
+[dependency-groups]
+dev = [
+    "workers-py"
+]
+

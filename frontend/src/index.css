@@ -1,0 +1,73 @@
+/* Import fonts */
+@import "./styles/fonts/inter.css";
+
+/* Import the base Tailwind styles from ui-library */
+@import "../../../packages/ui-library/src/styles/global.css";
+
+:root {
+  font-family: "Inter", "JetBrains Mono", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Light mode autofill styles */
+input:-webkit-autofill {
+  -webkit-text-fill-color: rgb(25, 25, 25);
+}
+
+/* Dark mode autofill styles */
+.dark input:-webkit-autofill {
+  -webkit-text-fill-color: rgb(250, 250, 250);
+  box-shadow: 0 0 0px 1000px rgb(41, 41, 41) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+/* Loading ellipsis animation */
+@keyframes ellipsis {
+  0%,
+  20% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  60%,
+  100% {
+    opacity: 1;
+  }
+}
+
+.loading-dots span {
+  animation: ellipsis 1.5s infinite;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}

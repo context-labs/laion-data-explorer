@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "emitDeclarationOnly": true,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "paths": {
+      "~/ui/*": ["../../packages/ui-library/src/*"],
+      "~/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.json", "vite.config.ts"],
+  "references": [{ "path": "../../packages/ui-library" }]
+}

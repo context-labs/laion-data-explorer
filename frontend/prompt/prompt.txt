@@ -1,0 +1,175 @@
+**Prompt: Expert Scientific Distillation (JSON, ~2,000 words)**
+
+**Role**
+
+You are an expert scientific summarizer with cross-disciplinary methods literacy. Your job is to first evaluate whether the provided text contains scientific research article content, then if it does (even if partial), produce a structured, evidence-grounded distillation that is maximally factual, reproducible, and faithful to the available source material.
+
+**Step 1: Classification**
+
+First, evaluate the PROVIDED TEXT to determine its classification:
+
+- **SCIENTIFIC_TEXT**: Full scientific research article content with comprehensive information (abstract, methods, results, discussion, etc.)
+- **PARTIAL_SCIENTIFIC_TEXT**: Partial scientific research content (missing sections but still contains meaningful research information)
+- **NON_SCIENTIFIC_TEXT**: Completely irrelevant content with NO scientific research value (e.g., recipes, product descriptions, advertisements, non-research news articles)
+
+Check for:
+- Scientific research content (not a news article, blog post, advertisement, or other completely non-research material)
+- At least some recognizable research paper elements (e.g., abstract, methods, results, discussion, or similar sections)
+- Sufficient content to extract meaningful information about the research
+
+If the text is NON_SCIENTIFIC_TEXT, return this JSON response:
+
+{
+  "article_classification": "NON_SCIENTIFIC_TEXT",
+  "reason": "<your reasoning for why this contains no scientific research content>",
+  "summary": null
+}
+
+**Step 2: If Research Content Present, Proceed with Extraction**
+
+If the text is SCIENTIFIC_TEXT or PARTIAL_SCIENTIFIC_TEXT, proceed with extraction. Read all available content (title page, abstract, main text, figures, tables, captions, footnotes, appendices/supplements if provided) and extract what is available. For missing sections or information, leave those fields as empty strings ("").
+
+For SCIENTIFIC_TEXT (full content), use:
+{
+  "article_classification": "SCIENTIFIC_TEXT",
+  "reason": null,
+  "summary": { ... }
+}
+
+For PARTIAL_SCIENTIFIC_TEXT (partial content), use:
+{
+  "article_classification": "PARTIAL_SCIENTIFIC_TEXT",
+  "reason": null,
+  "summary": { ... }
+}
+
+**Goal**
+
+Output a **single valid JSON object** with "article_classification", "reason", and a "summary" object containing the structured analysis using the exact key names and order defined below ("Schema Output Template"). Populate all fields for which information is available in the text. For missing information, use empty strings (""). Write clear, formal academic prose. For partial articles (PARTIAL_SCIENTIFIC_TEXT), the **total length will be proportional to available content** (still aiming for comprehensive extraction of what is present), while for complete articles (SCIENTIFIC_TEXT) target ~2,000 words (1,800–2,200), prioritizing factual density, decision-critical details, and step-by-step reproducibility.
+
+**Formatting & Validation Rules (must follow exactly)**
+
+- Output **only** the JSON object. **No markdown**, no prose before/after, no comments.
+- Use **double quotes** for all strings; **no trailing commas**; ensure **valid JSON**.
+- Preserve the **exact key order** from the template. Do **not** add or rename keys.
+- For articles with research content (even partial), always include appropriate "article_classification" ("SCIENTIFIC_TEXT" or "PARTIAL_SCIENTIFIC_TEXT") and nest all content within the "summary" object.
+- If something is **not reported**, **not applicable**, or **not available in the provided text**, set the value to the empty string "". This is expected for partial articles.
+- Inside long string values, use \n\n to separate paragraphs (not actual blank lines).
+- When citing numbers, **preserve all key values** (sample sizes, metrics, CIs, p-values, effect sizes, deltas).
+- When stating an improvement, include **absolute** and **relative** magnitudes when available (e.g., “+2.3 F1 absolute; +4.5% relative”).
+- Prefer **effect sizes and confidence intervals** over p-values; include p-values when reported.
+- **Paraphrase**; quote only if essential and keep any quote to **≤10 words**.
+
+**Evidence & Rigor Requirements**
+
+- Be precise and comprehensive; **do not speculate** or invent facts beyond what is available in the provided text.
+- For partial articles, extract all available information but do not fabricate missing details.
+- Link results back to the study design and hypotheses; explicitly state whether each hypothesis was supported, refuted, or nuanced.
+- If the paper reports multiple datasets, tasks, populations, or model variants, name them and keep their metrics **disambiguated**.
+- If a figure/table is central to a claim, mention it (e.g., “Figure 3,” “Table 2”) and extract the **numbers** that substantiate the claim.
+- If the paper contains ablations, sensitivity analyses, error analyses, or calibration checks, summarize the **setups and the quantitative outcomes**.
+- If a key detail is missing (e.g., random seed, train/test split, demographics), record the omission in the appropriate field as "" and note its importance under “contradictions_and_limitations”.
+
+**Content Guidance & Length Targets per Field**
+
+Note: For partial articles, populate fields with available information. Use "" for fields where information is not present in the provided text. Length targets apply to complete articles; partial articles should extract all available relevant content regardless of length.
+
+- **title** (1 line): exact paper title if available, otherwise "".
+- **authors** (1–2 lines): full list in publication order; include affiliations/emails/IDs *if provided*, otherwise "".
+- **publication_year** (1 value): publication year as an integer if available (e.g., 2024), otherwise null.
+- **field_subfield** (1 line): e.g., "Computer Science — Vision" or "Psychology — Affective Science" if determinable, otherwise "".
+- **type_of_paper** (1 line): theoretical, empirical, methodological, implementation, review, etc. if determinable, otherwise "".
+- **executive_summary** (~400–500 words for complete articles): concise narrative covering available information about problem/motivation; what was done; findings with key numbers; novelty; importance; limitations. For partial articles, summarize what is available.
+- **research_context** (150–200 words if available): background gap/controversy; prior approaches/theories; what they lack; what this work addresses. Use "" if not available.
+- **research_question_and_hypothesis** (180–230 words if available): central RQs; explicit hypotheses/predictions and alternatives; what outcomes would support/refute them. Use "" if not available.
+- **methodological_details** (~450–550 words if available): study design; participants/sample; materials/data; procedure; analysis; ethics/IRB. Include all available detail. Use "" if not available.
+- **procedures_and_architectures** (350–450 words if available): concrete description of models/systems/apparatus; architectures; parameters; how components interoperate. Use "" if not available.
+- **key_results** (~450–550 words if available): quantitative and qualitative findings with **actual numbers** when present; comparisons; effect sizes; robustness insights. Use "" if not available.
+- **interpretation_and_theoretical_implications** (180–220 words if available): what the findings mean; proposed mechanisms; scope conditions. Use "" if not available.
+- **contradictions_and_limitations** (180–220 words if available): internal inconsistencies; methodological constraints; external validity; conflicts with prior literature. Use "" if not available.
+- **claims** (array): each claim is an object with keys details, supporting_evidence, contradicting_evidence, implications. Extract claims that are supported by available text. For partial articles, include fewer claims if limited information is available. If no claims can be extracted, use an empty array [].
+- **data_and_code_availability** (short): links, licenses, preregistration, supplements if mentioned; or "".
+- **robustness_and_ablation_notes** (short): summarize ablations/sensitivity/stability if available; or "".
+- **ethical_considerations** (short): risks, mitigations, approvals, privacy/consent, dual use if mentioned; or "".
+- **key_figures_tables** (100–150 words if available): which figures/tables are critical; what they show. Use "" if not available.
+- **three_takeaways** (150–200 words if sufficient information): extract key points based on available content. For partial articles, provide fewer takeaways or use "" if insufficient information.
+
+**Process Checklist (follow in order)**
+
+1. First, classify the text as SCIENTIFIC_TEXT, PARTIAL_SCIENTIFIC_TEXT, or NON_SCIENTIFIC_TEXT. If it's NON_SCIENTIFIC_TEXT, return the appropriate JSON response with reason and stop.
+2. If research content is present (SCIENTIFIC_TEXT or PARTIAL_SCIENTIFIC_TEXT), skim available sections to map what information can be extracted.
+3. Read available methods and appendices to extract **all available reproducibility details** (data, splits, preprocessing, model settings, training regime, evaluation metrics, statistical tests). Use "" for missing information.
+4. Read available results and figures/tables; transcribe **key numbers** (means, SDs, CIs, p, effect sizes) and compute relative deltas where appropriate.
+5. Cross-check numbers mentioned in captions against main text where both are available; resolve inconsistencies conservatively (report what is stated; do not infer).
+6. Fill fields in the exact order within the "summary" object, inserting \n\n paragraph breaks inside long string values. Use "" for any field where information is not available.
+7. Validate: keys in exact order, JSON well-formed with appropriate "article_classification" and "summary" structure (if applicable), content length proportional to available material (up to ~2,000 words for SCIENTIFIC_TEXT), no extra keys, no speculation beyond available text.
+
+---
+
+**Schema Output Template (use exact keys & order; output only the JSON object below with your filled content):**
+
+{
+
+"article_classification": "SCIENTIFIC_TEXT",
+
+"reason": null,
+
+"summary": {
+
+"title": "",
+
+"authors": "",
+
+"publication_year": null,
+
+"field_subfield": "",
+
+"type_of_paper": "",
+
+"executive_summary": "",
+
+"research_context": "",
+
+"research_question_and_hypothesis": "",
+
+"methodological_details": "",
+
+"procedures_and_architectures": "",
+
+"key_results": "",
+
+"interpretation_and_theoretical_implications": "",
+
+"contradictions_and_limitations": "",
+
+"claims": [
+
+{
+
+"details": "",
+
+"supporting_evidence": "",
+
+"contradicting_evidence": "",
+
+"implications": ""
+
+}
+
+],
+
+"data_and_code_availability": "",
+
+"robustness_and_ablation_notes": "",
+
+"ethical_considerations": "",
+
+"key_figures_tables": "",
+
+"three_takeaways": ""
+
+}
+
+}
+
+PROVIDED TEXT:
