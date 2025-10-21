@@ -271,7 +271,10 @@ export default function LaionApp() {
   >("3d");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [layoutType, setLayoutType] = useState<LayoutType>("original");
-  const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(true);
+  const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(() => {
+    const hasSeenWelcome = localStorage.getItem("hasSeenWelcomeDialog");
+    return hasSeenWelcome !== "true";
+  });
   const [learnMoreSheetOpen, setLearnMoreSheetOpen] = useState(false);
 
   // Heatmap controls
@@ -296,6 +299,13 @@ export default function LaionApp() {
   // Distribution chart controls
   const [distributionTopN, setDistributionTopN] = useState(100);
   const [totalClusters, setTotalClusters] = useState(100);
+
+  // Store in local storage when welcome dialog is closed
+  useEffect(() => {
+    if (!welcomeDialogOpen) {
+      localStorage.setItem("hasSeenWelcomeDialog", "true");
+    }
+  }, [welcomeDialogOpen]);
 
   // Trigger window resize when sidebar is collapsed/expanded to force plot to resize
   useEffect(() => {
@@ -688,10 +698,7 @@ export default function LaionApp() {
             <main className="flex-1 overflow-hidden bg-background p-0">
               {loading ? (
                 <div className="flex h-full items-center justify-center">
-                  <div className="space-y-4 text-center">
-                    <Skeleton className="mx-auto h-64 w-64 rounded-full" />
-                    <Skeleton className="mx-auto h-6 w-48" />
-                  </div>
+                  <Skeleton className="mx-auto h-64 w-64 rounded-full" />
                 </div>
               ) : (
                 <ClusterVisualization
