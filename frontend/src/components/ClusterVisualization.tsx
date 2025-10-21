@@ -78,7 +78,7 @@ export function ClusterVisualization({
     if (densityPercent < 100) {
       clusterMap.forEach((clusterPapers, clusterId) => {
         const targetCount = Math.ceil(
-          (clusterPapers.length * densityPercent) / 100,
+          (clusterPapers.length * densityPercent) / 100
         );
         if (targetCount < clusterPapers.length) {
           // Use deterministic sampling based on paper ID to keep it stable
@@ -117,7 +117,7 @@ export function ClusterVisualization({
             clusterId,
             clusterIndex,
             totalClusters: clusterMap.size,
-          },
+          }
         );
 
         return {
@@ -160,7 +160,7 @@ export function ClusterVisualization({
           },
           customdata: clusterPapers.map((p) => [p.id, clusterId]), // Store both paper ID and cluster ID
         };
-      },
+      }
     );
 
     setPlotData(traces);
@@ -228,7 +228,7 @@ export function ClusterVisualization({
             clusterId,
             clusterIndex,
             totalClusters: clusterMap.size,
-          },
+          }
         );
 
         const sumX = transformedPoints.reduce((sum, p) => sum + p.x, 0);
@@ -262,7 +262,7 @@ export function ClusterVisualization({
           xanchor: "center",
           yanchor: "middle",
         });
-      },
+      }
     );
 
     setSceneAnnotations(annotations);
