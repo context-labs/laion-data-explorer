@@ -3,9 +3,9 @@ import {
   AtomIcon,
   BarChart3Icon,
   BarChartIcon,
-  BookTextIcon,
   ChartNetworkIcon,
   ChevronRightIcon,
+  FileBoxIcon,
   LayoutGridIcon,
   Menu,
   MicroscopeIcon,
@@ -570,8 +570,8 @@ export default function LaionApp() {
                 onClick={() => setLearnMoreSheetOpen(true)}
                 className="text-muted-foreground hover:text-foreground"
               >
-                <BookTextIcon className="mr-2 h-4 w-4" />
-                Learn More
+                <FileBoxIcon className="mr-2 h-4 w-4" />
+                Project Info
               </Button>
               <p className="text-sm text-muted-foreground">
                 This is a dataset of structured summaries from 100,000

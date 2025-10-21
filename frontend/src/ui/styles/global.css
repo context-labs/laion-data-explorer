@@ -410,6 +410,6 @@
 }
 
 a:hover {
-  color: var(--link-hover);
+  color: var(--chart-1-primary);
   text-decoration: underline;
 }
