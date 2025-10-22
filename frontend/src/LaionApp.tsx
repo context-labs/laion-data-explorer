@@ -37,6 +37,7 @@ import {
   PlusIcon,
   SunMoonIcon,
 } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 import { useEffect, useState } from "react";
 import LaionDarkLogo from "./assets/logos/Laion-dark.svg";
 import LaionLightLogo from "./assets/logos/Laion-light.svg";
@@ -289,6 +290,7 @@ function MobileNavigation({
 }
 
 export default function LaionApp() {
+  const posthog = usePostHog();
   const [papers, setPapers] = useState<PaperSummary[]>([]);
   const [clusters, setClusters] = useState<ClusterInfo[]>([]);
   const [selectedPaperId, setSelectedPaperId] = useState<number | null>(null);
@@ -477,11 +479,11 @@ export default function LaionApp() {
     // Clear any previous errors
     setEmailError("");
 
-    // Placeholder for now - will wire up later
-    console.log({
+    // Track email submission in PostHog
+    posthog.capture("email_submitted", {
       email,
-      interestedInFullDataset,
-      interestedInModelTraining,
+      interested_in_full_dataset: interestedInFullDataset,
+      interested_in_model_training: interestedInModelTraining,
     });
 
     // Close dialog and reset form
