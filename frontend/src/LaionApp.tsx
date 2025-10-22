@@ -578,7 +578,7 @@ export default function LaionApp() {
                 className="text-muted-foreground hover:text-foreground"
               >
                 <FileBoxIcon className="mr-2 h-4 w-4" />
-                Project Info
+                What is this?
               </Button>
               <p className="text-sm text-muted-foreground">
                 This is a dataset of structured summaries from 100,000
