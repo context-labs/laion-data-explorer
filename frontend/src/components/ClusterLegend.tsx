@@ -79,10 +79,10 @@ export function ClusterLegend({
             Search Papers
             <ChevronLeftIcon
               className={`
-              ml-2 hidden h-4 w-4
+                ml-2 hidden h-4 w-4
 
-              lg:block
-            `}
+                lg:block
+              `}
             />
           </h3>
           <form
