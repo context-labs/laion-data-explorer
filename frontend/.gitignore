@@ -1,2 +1,4 @@
 data/
 api/cache/
+
+.env.production

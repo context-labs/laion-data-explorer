@@ -48,6 +48,7 @@
     "lucide-react": "0.441.0",
     "pako": "2.1.0",
     "plotly.js": "2.27.1",
+    "posthog-js": "^1.279.3",
     "react": "19.1.0",
     "react-day-picker": "9.6.6",
     "react-dom": "19.1.0",
