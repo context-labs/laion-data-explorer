@@ -1,0 +1,118 @@
+# Taskfile for Cloudflare Workers (Python) workflow
+# Requires: go-task (https://taskfile.dev) and Cloudflare Wrangler (v3.60+)
+# Optional: Node.js (to install wrangler), Python 3.11+
+
+version: '3'
+
+vars:
+  # Optional env selection for wrangler environments (e.g. "production", "staging").
+  ENV: '{{.ENV | default ""}}'
+  PORT: '{{.PORT | default "8000"}}'
+
+tasks:
+  default:
+    desc: Show common tasks
+    cmds:
+      - task --list
+
+  backend:setup:
+    desc: Install Python dependencies
+    cmds:
+      - |
+        echo "==> Installing Python dependencies";
+        cd backend;
+        uv sync
+
+  backend:dev:
+    desc: Run local dev server (Python)
+    cmds:
+      - |
+        echo "==> Starting local dev server";
+        cd backend;
+        uv run pywrangler dev
+
+  backend:deploy:
+    desc: Deploy the Worker to Cloudflare
+    cmds:
+      - |
+        echo "==> Deploying Cloudflare Worker";
+        cd backend;
+        uv run pywrangler deploy
+
+  backend:tail:
+    desc: Stream Worker logs
+    cmds:
+      - |
+        echo "==> Tailing logs";
+        cd backend;
+        uv run pywrangler tail --format=pretty
+
+  frontend:setup:
+    desc: Install frontend dependencies
+    cmds:
+      - |
+        echo "==> Installing frontend dependencies";
+        cd frontend;
+        bun install
+  
+  frontend:dev:
+    desc: Run local dev server (Frontend)
+    cmds:
+      - |
+        echo "==> Starting local dev server";
+        cd frontend;
+        bun run dev
+        
+  frontend:deploy:
+    desc: Deploy frontend
+    cmds:
+      - |
+        echo "==> Deploying frontend";
+        cd frontend;
+        bun run deploy
+
+  setup:
+    desc: Setup tasks
+    cmds:
+      - task backend:setup
+      - task frontend:setup
+
+  whoami:
+    desc: Show Cloudflare account and user info
+    cmds:
+      - wrangler whoami
+
+  deploy:
+    desc: Deploy API and/or frontend with prompts
+    cmds:
+      - |
+        echo "==> Deploy workflow";
+        
+        # Prompt for API deployment
+        read -p "Deploy the Cloudflare worker? y/n: " api_choice;
+        
+        # Prompt for frontend deployment
+        read -p "Deploy the frontend? y/n: " frontend_choice;
+        
+        # Deploy API if user confirmed
+        if [ "$api_choice" = "y" ] || [ "$api_choice" = "Y" ]; then
+          echo "";
+          echo "==> Deploying API...";
+          task backend:deploy;
+        else
+          echo "==> Skipping API deployment";
+        fi
+        
+        # Deploy frontend if user confirmed
+        if [ "$frontend_choice" = "y" ] || [ "$frontend_choice" = "Y" ]; then
+          echo "";
+          echo "==> Deploying frontend...";
+          task frontend:deploy;
+        else
+          echo "==> Skipping frontend deployment";
+        fi
+        
+        echo "";
+        echo "==> Deploy workflow complete!";
+
+  

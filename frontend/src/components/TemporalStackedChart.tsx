@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAtom } from "jotai";
 import Plot from "react-plotly.js";
 
-import { Button, Input, Select, useTheme } from "~/ui";
+import { Input, Select, Switch, useTheme } from "~/ui";
 
 import type { ClusterTemporalData, TemporalDataResponse } from "../types";
 import {
@@ -54,7 +54,7 @@ export function TemporalStackedChart({
   const [localMinYear, setLocalMinYear] = useState(1990);
   const [localMaxYear, setLocalMaxYear] = useState(2025);
   const [localTopN, setLocalTopN] = useState(20);
-  const [localStackMode, setLocalStackMode] = useState<StackMode>("absolute");
+  const [localStackMode, setLocalStackMode] = useState<StackMode>("percentage");
   const [localSortBy, setLocalSortBy] = useState<StackedSortOption>("total");
   const [localShowOther, setLocalShowOther] = useState(false);
 
@@ -83,7 +83,7 @@ export function TemporalStackedChart({
   // Fetch temporal data with caching
   const yearRangeKey = createYearRangeKey(minYear, maxYear);
   const [cachedTemporalData, setCachedTemporalData] = useAtom(
-    temporalDataAtomFamily(yearRangeKey),
+    temporalDataAtomFamily(yearRangeKey)
   );
 
   useEffect(() => {
@@ -97,7 +97,7 @@ export function TemporalStackedChart({
     // Otherwise, fetch the data
     setLoading(true);
     fetch(
-      getApiUrl(`/api/temporal-data?min_year=${minYear}&max_year=${maxYear}`),
+      getApiUrl(`/api/temporal-data?min_year=${minYear}&max_year=${maxYear}`)
     )
       .then((res) => res.json())
       .then((data: TemporalDataResponse) => {
@@ -141,7 +141,7 @@ export function TemporalStackedChart({
       sortedClusters.sort((a, b) => a.avg_year - b.avg_year);
     } else {
       sortedClusters.sort((a, b) =>
-        a.cluster_label.localeCompare(b.cluster_label),
+        a.cluster_label.localeCompare(b.cluster_label)
       );
     }
 
@@ -152,7 +152,7 @@ export function TemporalStackedChart({
     // Get all years in range
     const years = Array.from(
       { length: maxYear - minYear + 1 },
-      (_, i) => minYear + i,
+      (_, i) => minYear + i
     );
 
     // Build year totals for percentage mode
@@ -166,7 +166,7 @@ export function TemporalStackedChart({
     // Create traces for each cluster
     const traces = topClusters.map((cluster) => {
       const yearCountMap = new Map(
-        cluster.temporal_data.map((d) => [d.year, d.count]),
+        cluster.temporal_data.map((d) => [d.year, d.count])
       );
 
       const counts = years.map((year) => {
@@ -215,7 +215,7 @@ export function TemporalStackedChart({
     // Calculate statistics
     const totalPapers = clusterTotals.reduce((sum, c) => sum + c.total, 0);
     const peakYear = Array.from(yearTotals.entries()).reduce((max, e) =>
-      e[1] > max[1] ? e : max,
+      e[1] > max[1] ? e : max
     )[0];
     const avgPerYear = totalPapers / years.length;
 
@@ -314,7 +314,9 @@ export function TemporalStackedChart({
       <div className="border-b border-border bg-background px-6 py-4">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <label className="text-sm text-foreground">Year Range:</label>
+            <label className="whitespace-nowrap text-sm text-foreground">
+              Year Range:
+            </label>
             <Input
               type="number"
               value={minYear}
@@ -335,7 +337,9 @@ export function TemporalStackedChart({
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm text-foreground">Top Clusters:</label>
+            <label className="whitespace-nowrap text-sm text-foreground">
+              Top Clusters:
+            </label>
             <Select
               value={topN.toString()}
               onValueChange={(value) => setTopN(parseInt(value))}
@@ -349,7 +353,9 @@ export function TemporalStackedChart({
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm text-foreground">Stack Mode:</label>
+            <label className="whitespace-nowrap text-sm text-foreground">
+              Stack Mode:
+            </label>
             <Select
               value={stackMode}
               onValueChange={(value) => setStackMode(value as StackMode)}
@@ -361,7 +367,9 @@ export function TemporalStackedChart({
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm text-foreground">Sort By:</label>
+            <label className="whitespace-nowrap text-sm text-foreground">
+              Sort By:
+            </label>
             <Select
               value={sortBy}
               onValueChange={(value) => setSortBy(value as StackedSortOption)}
@@ -374,13 +382,12 @@ export function TemporalStackedChart({
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              size="xs"
-              variant={showOther ? "default" : "outline"}
-              onClick={() => setShowOther(!showOther)}
-            >
-              {showOther ? "Hide Other" : "Show Other"}
-            </Button>
+            <Switch
+              checked={showOther}
+              onCheckedChange={setShowOther}
+              label="Show Other Papers"
+              labelClassName="text-sm text-foreground"
+            />
           </div>
         </div>
       </div>

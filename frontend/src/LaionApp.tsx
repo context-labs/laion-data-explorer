@@ -357,8 +357,8 @@ export default function LaionApp() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
-      // If search is empty, reset to sampled papers
-      fetchCompressed<PapersResponse>(getApiUrl("/api/papers?sample_size=100"))
+      // If search is empty, reset to all papers
+      fetchCompressed<PapersResponse>(getApiUrl("/api/papers"))
         .then((data) => setAllPapers(data.papers))
         .catch((err: Error) => setError(err.message));
       return;
