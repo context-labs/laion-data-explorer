@@ -55,7 +55,7 @@ export function LearnMoreSheet({
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent
-        className="w-full overflow-y-auto sm:max-w-3xl h-full flex flex-col"
+        className="w-full overflow-y-auto sm:max-w-5xl h-full flex flex-col"
         side="right"
       >
         <SheetHeader className="flex-shrink-0">
@@ -64,13 +64,13 @@ export function LearnMoreSheet({
         <div className="flex-1 overflow-y-auto pb-6">
           <Col className="gap-2 mt-6">
             <LearnMoreLinks />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               We fine-tuned a 14B Qwen model to specialize in the task of
               extracting structured summaries from scientific papers. We
               carefully benchmarked this model across a variety of closed source
               models.
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               We evaluated the model's performance on 1,000 samples withheld
               from the training set using an LLM-as-a-Judge methodology, on a
               qualitative 5-point rubric.
@@ -82,7 +82,7 @@ export function LearnMoreSheet({
               className="w-full my-4 rounded-lg border"
             />
             <h2 className="mt-6">Structured Extraction Schema</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               The fine-tuned model extracts structured summaries from papers
               following this TypeScript schema:
             </p>
@@ -92,13 +92,13 @@ export function LearnMoreSheet({
               obfuscatedCode={SCHEMA_CODE}
               copyButton={<></>}
               className="mt-2"
-              customStyle={{ fontSize: "0.7rem" }}
+              customStyle={{ fontSize: "1rem" }}
             />
           </Col>
           <Col className="gap-2 mt-12">
             <h2>Dataset Exploration</h2>
             <b>Embeddings</b>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               Paper embeddings were generated using{" "}
               <a
                 href="https://huggingface.co/allenai/specter2_base"
@@ -115,7 +115,7 @@ export function LearnMoreSheet({
               scientific literature.
             </p>
             <b>Cluster Algorithm</b>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               The visualization uses UMAP (Uniform Manifold Approximation and
               Projection) to reduce the 768D embeddings to 3D coordinates,
               preserving local and global structure. K-Means clustering groups

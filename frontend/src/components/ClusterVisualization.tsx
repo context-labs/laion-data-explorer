@@ -1,6 +1,6 @@
 import { Label, Slider, Switch, useTheme } from "~/ui";
 import type { Data } from "plotly.js";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Plot from "react-plotly.js";
 import type { ClusterInfo, PaperSummary } from "../types";
 import type { LayoutType } from "../utils/layoutTransforms";
@@ -27,7 +27,6 @@ export function ClusterVisualization({
   const { isDarkTheme } = useTheme();
   const [plotData, setPlotData] = useState<Data[]>([]);
   const [sceneAnnotations, setSceneAnnotations] = useState<any[]>([]);
-  const [revision, setRevision] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [cameraRevision, setCameraRevision] = useState(0);
   const [showAllLabels, setShowAllLabels] = useState(false);
@@ -35,10 +34,12 @@ export function ClusterVisualization({
     // Set lower density on mobile for better performance
     return typeof window !== "undefined" && window.innerWidth < 1024 ? 20 : 100;
   });
-  const [isModifierPressed, setIsModifierPressed] = useState(false);
+  // Use ref instead of state to avoid re-renders when modifier key is pressed
+  const isModifierPressedRef = useRef(false);
   const [prevLayoutType, setPrevLayoutType] = useState(layoutType);
   // Use a stable string to maintain camera position across data changes
-  const uirevision = `camera-${cameraRevision}-${layoutType}`;
+  // Only change when we explicitly want to reset (R key or layout change)
+  const uirevision = `camera-stable-${layoutType}-${cameraRevision}`;
 
   useEffect(() => {
     // Group papers by cluster
@@ -164,7 +165,6 @@ export function ClusterVisualization({
     );
 
     setPlotData(traces);
-    setRevision((prev) => prev + 1);
   }, [
     papers,
     clusters,
@@ -292,23 +292,24 @@ export function ClusterVisualization({
   }, [layoutType, prevLayoutType]);
 
   // Track modifier key state (Ctrl on Windows/Linux, Cmd on Mac)
+  // Using ref instead of state to avoid re-renders
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey || event.metaKey) {
-        setIsModifierPressed(true);
+        isModifierPressedRef.current = true;
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
       // When Ctrl or Meta is released, check if either is still pressed
       if (!event.ctrlKey && !event.metaKey) {
-        setIsModifierPressed(false);
+        isModifierPressedRef.current = false;
       }
     };
 
     // Reset state when window loses focus
     const handleBlur = () => {
-      setIsModifierPressed(false);
+      isModifierPressedRef.current = false;
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -343,6 +344,80 @@ export function ClusterVisualization({
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, []);
+
+  // Memoize layout config to prevent unnecessary re-renders
+  const plotLayout = useMemo(
+    () => ({
+      showlegend: false,
+      legend: {
+        orientation: "v" as const,
+        yanchor: "top" as const,
+        y: 1,
+        xanchor: "left" as const,
+        x: 1.02,
+        bgcolor: isDarkTheme
+          ? "rgba(18, 25, 38, 0.9)"
+          : "rgba(255, 255, 255, 0.8)",
+        bordercolor: isDarkTheme ? "#374151" : "#ddd",
+        borderwidth: 1,
+      },
+      hovermode: "closest" as const,
+      hoverlabel: {
+        bgcolor: isDarkTheme ? "#1f2937" : "white",
+        bordercolor: isDarkTheme ? "#374151" : "#ddd",
+        font: { size: 12, color: isDarkTheme ? "#f9fafb" : "#333" },
+        align: "left" as const,
+        namelength: -1,
+      },
+      scene: {
+        bgcolor: isDarkTheme ? "#0d121c" : "white",
+        xaxis: {
+          title: "",
+          zeroline: false,
+          showgrid: true,
+          gridcolor: isDarkTheme ? "#374151" : "#e0e0e0",
+          backgroundcolor: isDarkTheme ? "#0d121c" : "#fafafa",
+          showticklabels: false,
+        },
+        yaxis: {
+          title: "",
+          zeroline: false,
+          showgrid: true,
+          gridcolor: isDarkTheme ? "#374151" : "#e0e0e0",
+          backgroundcolor: isDarkTheme ? "#0d121c" : "#fafafa",
+          showticklabels: false,
+        },
+        zaxis: {
+          title: "",
+          zeroline: false,
+          showgrid: true,
+          gridcolor: isDarkTheme ? "#374151" : "#e0e0e0",
+          backgroundcolor: isDarkTheme ? "#0d121c" : "#fafafa",
+          showticklabels: false,
+        },
+        camera: getCameraForLayout(layoutType),
+        annotations: sceneAnnotations,
+      },
+      paper_bgcolor: isDarkTheme ? "#0d121c" : "white",
+      plot_bgcolor: isDarkTheme ? "#0d121c" : "white",
+      margin: { t: 10, r: 10, b: 10, l: 10 },
+      autosize: true,
+      uirevision: uirevision,
+    }),
+    [isDarkTheme, layoutType, sceneAnnotations, uirevision],
+  );
+
+  // Memoize plot config to prevent unnecessary re-renders
+  const plotConfig = useMemo(
+    () => ({
+      displayModeBar: false,
+      displaylogo: false,
+      responsive: true,
+      scrollZoom: true,
+      doubleClick: "reset" as const,
+    }),
+    [],
+  );
 
   return (
     <div
@@ -497,71 +572,8 @@ export function ClusterVisualization({
       >
         <Plot
           data={plotData}
-          layout={{
-            showlegend: false,
-            legend: {
-              orientation: "v",
-              yanchor: "top",
-              y: 1,
-              xanchor: "left",
-              x: 1.02,
-              bgcolor: isDarkTheme
-                ? "rgba(18, 25, 38, 0.9)"
-                : "rgba(255, 255, 255, 0.8)",
-              bordercolor: isDarkTheme ? "#374151" : "#ddd",
-              borderwidth: 1,
-            },
-            hovermode: "closest",
-            hoverlabel: {
-              bgcolor: isDarkTheme ? "#1f2937" : "white",
-              bordercolor: isDarkTheme ? "#374151" : "#ddd",
-              font: { size: 12, color: isDarkTheme ? "#f9fafb" : "#333" },
-              align: "left",
-              namelength: -1,
-            },
-            scene: {
-              bgcolor: isDarkTheme ? "#0d121c" : "white",
-              xaxis: {
-                title: "",
-                zeroline: false,
-                showgrid: true,
-                gridcolor: isDarkTheme ? "#374151" : "#e0e0e0",
-                backgroundcolor: isDarkTheme ? "#0d121c" : "#fafafa",
-                showticklabels: false,
-              },
-              yaxis: {
-                title: "",
-                zeroline: false,
-                showgrid: true,
-                gridcolor: isDarkTheme ? "#374151" : "#e0e0e0",
-                backgroundcolor: isDarkTheme ? "#0d121c" : "#fafafa",
-                showticklabels: false,
-              },
-              zaxis: {
-                title: "",
-                zeroline: false,
-                showgrid: true,
-                gridcolor: isDarkTheme ? "#374151" : "#e0e0e0",
-                backgroundcolor: isDarkTheme ? "#0d121c" : "#fafafa",
-                showticklabels: false,
-              },
-              camera: getCameraForLayout(layoutType),
-              annotations: sceneAnnotations,
-            },
-            paper_bgcolor: isDarkTheme ? "#0d121c" : "white",
-            plot_bgcolor: isDarkTheme ? "#0d121c" : "white",
-            margin: { t: 10, r: 10, b: 10, l: 10 },
-            autosize: true,
-            datarevision: revision,
-            uirevision: uirevision,
-          }}
-          config={{
-            displayModeBar: false,
-            displaylogo: false,
-            responsive: true,
-            scrollZoom: true,
-            doubleClick: "reset",
-          }}
+          layout={plotLayout}
+          config={plotConfig}
           useResizeHandler={true}
           style={{ width: "100%", height: "100%" }}
           onClick={(e: unknown) => {
@@ -570,7 +582,7 @@ export function ClusterVisualization({
             };
             if (eventData.points?.[0]?.customdata) {
               const [paperId] = eventData.points[0].customdata;
-              if (paperId && isModifierPressed) {
+              if (paperId && isModifierPressedRef.current) {
                 onPaperClick(paperId);
               }
             }

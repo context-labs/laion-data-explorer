@@ -3,7 +3,6 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  Button,
   Sheet,
   SheetContent,
   SheetHeader,
@@ -33,6 +32,7 @@ export function PaperDetail({
   const [paper, setPaper] = useState<PaperDetailType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [accordionValue, setAccordionValue] = useState<string>("");
 
   useEffect(() => {
     if (!paperId) {
@@ -59,6 +59,8 @@ export function PaperDetail({
   }, [paperId]);
 
   const handleNearestPaperClick = (nearPaperId: number) => {
+    // Close the accordion when navigating to a nearest paper
+    setAccordionValue("");
     if (onPaperClick) {
       onPaperClick(nearPaperId);
     }
@@ -191,19 +193,26 @@ export function PaperDetail({
                 </div>
               </div>
               {paper.nearest_papers && paper.nearest_papers.length > 0 && (
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="w-full"
+                  value={accordionValue}
+                  onValueChange={setAccordionValue}
+                >
                   <AccordionItem value="nearest" className="border-border">
                     <AccordionTrigger>
-                      <Button>
-                        View {paper.nearest_papers.length} Nearest Papers
-                      </Button>
+                      <p className="text-base font-semibold text-foreground hover:underline ml-1">
+                        View Nearest Papers
+                      </p>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="mb-1 text-sm text-muted-foreground">
-                        Showing papers closest to this one in embedding space,
-                        calculated using Euclidean distance.
+                      <p className="mb-1 text-base text-muted-foreground">
+                        Showing {paper.nearest_papers.length} papers closest to
+                        this one in embedding space, calculated using Euclidean
+                        distance.
                       </p>
-                      <p className="mb-4 text-sm text-muted-foreground">
+                      <p className="mb-4 text-base text-muted-foreground">
                         These papers are semantically similar based on their
                         content and methodology.
                       </p>

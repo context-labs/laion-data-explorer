@@ -1,6 +1,6 @@
 export const LearnMoreLinks = () => {
   return (
-    <p className="text-sm text-muted-foreground">
+    <p className="text-base text-muted-foreground">
       This dataset was built using a specialized small model, fine-tuned by{" "}
       <a
         href="https://inference.net"
@@ -28,7 +28,7 @@ export function LearnMoreContent() {
   return (
     <div className="space-y-4">
       <LearnMoreLinks />
-      <p className="text-sm text-muted-foreground">
+      <p className="text-base text-muted-foreground">
         This is a small 100,000 sample preview of the full ~50m sample dataset.
         Our fine-tuned model extracts structured summaries from original,
         arbitrary text data.

@@ -298,7 +298,7 @@ export default function LaionApp() {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [interestedInFullDataset, setInterestedInFullDataset] = useState(false);
+  const [interestedInFullDataset, setInterestedInFullDataset] = useState(true);
   const [interestedInModelTraining, setInterestedInModelTraining] =
     useState(false);
 
@@ -939,7 +939,6 @@ export default function LaionApp() {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  type="email"
                   placeholder="your@email.com"
                   value={email}
                   onChange={(e) => {
