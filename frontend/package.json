@@ -74,6 +74,6 @@
     "vite": "6.3.6",
     "vite-plugin-node-polyfills": "^0.24.0",
     "vite-tsconfig-paths": "^5.1.4",
-    "wrangler": "4.43.0"
+    "wrangler": "^4.44.0"
   }
 }

@@ -26,7 +26,7 @@ import {
   BarChartIcon,
   ChartNetworkIcon,
   ChevronRightIcon,
-  FileBoxIcon,
+  InfoIcon,
   LayoutGridIcon,
   Menu,
   MicroscopeIcon,
@@ -577,7 +577,7 @@ export default function LaionApp() {
                 onClick={() => setLearnMoreSheetOpen(true)}
                 className="text-muted-foreground hover:text-foreground"
               >
-                <FileBoxIcon className="mr-2 h-4 w-4" />
+                <InfoIcon className="mr-2 h-4 w-4" />
                 What is this?
               </Button>
               <p className="text-sm text-muted-foreground">
