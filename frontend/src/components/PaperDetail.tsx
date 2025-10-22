@@ -3,6 +3,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Button,
   Sheet,
   SheetContent,
   SheetHeader,
@@ -12,7 +13,6 @@ import { useEffect, useState } from "react";
 import type {
   ClusterInfo,
   PaperDetail as PaperDetailType,
-  PaperSummary,
   SummarizationData,
 } from "../types";
 import { getApiUrl } from "../utils/api";
@@ -193,21 +193,17 @@ export function PaperDetail({
               {paper.nearest_papers && paper.nearest_papers.length > 0 && (
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="nearest" className="border-border">
-                    <AccordionTrigger
-                      className={`
-                        text-sm font-bold text-foreground
-
-                        hover:no-underline
-                      `}
-                    >
-                      View {paper.nearest_papers.length} Nearest Papers
+                    <AccordionTrigger>
+                      <Button>
+                        View {paper.nearest_papers.length} Nearest Papers
+                      </Button>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="mb-1 text-xs text-muted-foreground">
+                      <p className="mb-1 text-sm text-muted-foreground">
                         Showing papers closest to this one in embedding space,
                         calculated using Euclidean distance.
                       </p>
-                      <p className="mb-4 text-xs text-muted-foreground">
+                      <p className="mb-4 text-sm text-muted-foreground">
                         These papers are semantically similar based on their
                         content and methodology.
                       </p>

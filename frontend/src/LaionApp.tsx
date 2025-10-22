@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Centered,
+  Checkbox,
   cn,
   DialogContent,
   DialogDescription,
@@ -11,6 +12,8 @@ import {
   DialogRoot,
   DialogTitle,
   InferenceIcon,
+  Input,
+  Label,
   Row,
   Select,
   Sheet,
@@ -136,12 +139,14 @@ type MobileNavigationProps = {
   totalPapers: number;
   setMobileMenuOpen: (open: boolean) => void;
   loading: boolean;
+  onEmailCTAClick: () => void;
 };
 
 function MobileNavigation({
   clusters,
   loading,
   onClearAll,
+  onEmailCTAClick,
   onRandomPaper,
   onSearchChange,
   onSearchSubmit,
@@ -184,6 +189,22 @@ function MobileNavigation({
               </Button>
             </div>
           </div>
+        </div>
+
+        {/* CTA for full dataset */}
+        <div className="border-t pt-4">
+          <Button
+            type="button"
+            onClick={() => {
+              onEmailCTAClick();
+              setMobileMenuOpen(false);
+            }}
+            variant="default"
+            size="xs"
+            className="flex w-full items-center justify-center gap-2"
+          >
+            Interested in the full dataset?
+          </Button>
         </div>
 
         {/* Controls for 3D View */}
@@ -274,6 +295,12 @@ export default function LaionApp() {
     return hasSeenWelcome !== "true";
   });
   const [learnMoreSheetOpen, setLearnMoreSheetOpen] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [interestedInFullDataset, setInterestedInFullDataset] = useState(false);
+  const [interestedInModelTraining, setInterestedInModelTraining] =
+    useState(false);
 
   // Heatmap controls
   const [heatmapMinYear, setHeatmapMinYear] = useState(1990);
@@ -416,6 +443,38 @@ export default function LaionApp() {
     }
   };
 
+  const handleEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim()) {
+      setEmailError("Email is required");
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    // Clear any previous errors
+    setEmailError("");
+
+    // Placeholder for now - will wire up later
+    console.log({
+      email,
+      interestedInFullDataset,
+      interestedInModelTraining,
+    });
+
+    // Close dialog and reset form
+    setEmailDialogOpen(false);
+    setEmail("");
+    setEmailError("");
+    setInterestedInFullDataset(false);
+    setInterestedInModelTraining(false);
+  };
+
   if (error) {
     return (
       <Centered className="flex h-screen flex-col bg-background">
@@ -489,6 +548,7 @@ export default function LaionApp() {
               totalPapers={papers.length}
               setMobileMenuOpen={setMobileMenuOpen}
               loading={loading}
+              onEmailCTAClick={() => setEmailDialogOpen(true)}
             />
           </SwipeableSheetContent>
         </Sheet>
@@ -549,6 +609,13 @@ export default function LaionApp() {
               >
                 <NotebookTextIcon className="mr-2 h-4 w-4" />
                 View Papers
+              </Button>
+              <Button
+                size="xs"
+                variant="default"
+                onClick={() => setEmailDialogOpen(true)}
+              >
+                Interested in the full dataset?
               </Button>
               <Button size="xs" onClick={() => setLearnMoreSheetOpen(true)}>
                 <AtomIcon className="mr-2 h-4 w-4" />
@@ -847,7 +914,85 @@ export default function LaionApp() {
       <LearnMoreSheet
         open={learnMoreSheetOpen}
         onClose={() => setLearnMoreSheetOpen(false)}
+        onEmailCTAClick={() => setEmailDialogOpen(true)}
       />
+      <DialogRoot
+        open={emailDialogOpen}
+        onOpenChange={(open) => {
+          setEmailDialogOpen(open);
+          if (!open) {
+            setEmailError("");
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Stay Updated on the Full Dataset</DialogTitle>
+            <DialogDescription>
+              The full ~50m dataset is currently being processed. Enter your
+              email below if you would like to be notified with updates.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEmailSubmit}>
+            <div className="space-y-4 p-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError("");
+                  }}
+                  required
+                  className={emailError ? "border-red-500" : ""}
+                />
+                {emailError && (
+                  <p className="text-sm text-red-500">{emailError}</p>
+                )}
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="full-dataset"
+                    checked={interestedInFullDataset}
+                    onCheckedChange={(checked) =>
+                      setInterestedInFullDataset(checked === true)
+                    }
+                  />
+                  <Label htmlFor="full-dataset" className="cursor-pointer">
+                    I'm interested in the full dataset
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="model-training"
+                    checked={interestedInModelTraining}
+                    onCheckedChange={(checked) =>
+                      setInterestedInModelTraining(checked === true)
+                    }
+                  />
+                  <Label htmlFor="model-training" className="cursor-pointer">
+                    I'm interested in custom model-training
+                  </Label>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEmailDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Submit</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </DialogRoot>
     </div>
   );
 }

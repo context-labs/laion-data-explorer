@@ -1,6 +1,8 @@
 import {
+  Button,
   CodeBlock,
   Col,
+  Separator,
   Sheet,
   SheetContent,
   SheetHeader,
@@ -40,9 +42,14 @@ interface SummarizationData {
 interface LearnMoreSheetProps {
   open: boolean;
   onClose: () => void;
+  onEmailCTAClick: () => void;
 }
 
-export function LearnMoreSheet({ open, onClose }: LearnMoreSheetProps) {
+export function LearnMoreSheet({
+  open,
+  onClose,
+  onEmailCTAClick,
+}: LearnMoreSheetProps) {
   const { isDarkTheme } = useTheme();
 
   return (
@@ -118,6 +125,19 @@ export function LearnMoreSheet({ open, onClose }: LearnMoreSheetProps) {
               most distinctive terms for each cluster.
             </p>
           </Col>
+          <Separator className="my-8" />
+          <div className="mt-8 flex justify-start">
+            <Button
+              variant="default"
+              onClick={() => {
+                onEmailCTAClick();
+                onClose();
+              }}
+              className="w-full sm:w-auto"
+            >
+              Interested in the full dataset?
+            </Button>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
