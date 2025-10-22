@@ -51,7 +51,7 @@ def extract_samples(db_path: str, num_samples: int = 100) -> None:
         print(f"Only {papers_with_samples} papers with samples available, using that instead of {num_samples}")
         num_samples = papers_with_samples
 
-    print(f"\n1. Creating paper_samples table...")
+    print("\n1. Creating paper_samples table...")
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS paper_samples (
             paper_id INTEGER PRIMARY KEY,
@@ -63,22 +63,22 @@ def extract_samples(db_path: str, num_samples: int = 100) -> None:
     print("   ✓ Table created")
 
     print(f"\n2. Selecting {num_samples} random papers with samples...")
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT id, sample
         FROM papers
         WHERE sample IS NOT NULL AND sample != ''
         ORDER BY RANDOM()
         LIMIT ?
-    """, (num_samples,))
+    """,
+        (num_samples,),
+    )
 
     samples = cursor.fetchall()
     print(f"   ✓ Selected {len(samples)} samples")
 
-    print(f"\n3. Inserting samples into paper_samples table...")
-    cursor.executemany(
-        "INSERT INTO paper_samples (paper_id, sample) VALUES (?, ?)",
-        samples
-    )
+    print("\n3. Inserting samples into paper_samples table...")
+    cursor.executemany("INSERT INTO paper_samples (paper_id, sample) VALUES (?, ?)", samples)
     conn.commit()
     print(f"   ✓ Inserted {len(samples)} samples")
 
@@ -87,7 +87,7 @@ def extract_samples(db_path: str, num_samples: int = 100) -> None:
     inserted_count = cursor.fetchone()[0]
     print(f"   ✓ Verified: {inserted_count} rows in paper_samples")
 
-    print(f"\n4. Creating a new papers table without sample column...")
+    print("\n4. Creating a new papers table without sample column...")
 
     # Get current table schema (excluding sample column)
     cursor.execute("PRAGMA table_info(papers)")
@@ -97,7 +97,7 @@ def extract_samples(db_path: str, num_samples: int = 100) -> None:
     new_columns = []
     for col in columns:
         col_id, name, type_, notnull, default_val, pk = col
-        if name != 'sample':
+        if name != "sample":
             new_columns.append((name, type_))
 
     # Create new table
@@ -138,22 +138,20 @@ def extract_samples(db_path: str, num_samples: int = 100) -> None:
     size_reduction = initial_size - final_size
     percent_reduction = (size_reduction / initial_size) * 100
 
-    print(f"\n{'='*60}")
-    print(f"RESULTS:")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("RESULTS:")
+    print(f"{'=' * 60}")
     print(f"Initial size:       {initial_size / (1024**2):.2f} MB")
     print(f"Final size:         {final_size / (1024**2):.2f} MB")
     print(f"Space saved:        {size_reduction / (1024**2):.2f} MB ({percent_reduction:.1f}%)")
     print(f"Samples extracted:  {inserted_count}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     conn.close()
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Extract paper samples to separate table and remove sample column"
-    )
+    parser = argparse.ArgumentParser(description="Extract paper samples to separate table and remove sample column")
     parser.add_argument(
         "--db",
         type=str,

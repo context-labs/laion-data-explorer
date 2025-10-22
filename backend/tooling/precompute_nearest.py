@@ -89,7 +89,7 @@ def compute_nearest_neighbors_batched(
         # coordinates[None, :, :] has shape (1, n_papers, 3)
         # Subtraction broadcasts to (batch_size, n_papers, 3)
         diff = batch_coords[:, None, :] - coordinates[None, :, :]  # (batch_size, n_papers, 3)
-        distances_sq = np.sum(diff ** 2, axis=2)  # (batch_size, n_papers)
+        distances_sq = np.sum(diff**2, axis=2)  # (batch_size, n_papers)
 
         # For each paper in batch, find nearest neighbors
         for i, global_idx in enumerate(range(batch_start, batch_end)):
@@ -130,19 +130,13 @@ def update_database(db_path: str, nearest_map: dict[int, list[int]]) -> None:
 
         # Commit every 1000 rows
         if len(batch) >= 1000:
-            cursor.executemany(
-                "UPDATE papers SET nearest_paper_ids = ? WHERE id = ?",
-                batch
-            )
+            cursor.executemany("UPDATE papers SET nearest_paper_ids = ? WHERE id = ?", batch)
             conn.commit()
             batch = []
 
     # Commit remaining
     if batch:
-        cursor.executemany(
-            "UPDATE papers SET nearest_paper_ids = ? WHERE id = ?",
-            batch
-        )
+        cursor.executemany("UPDATE papers SET nearest_paper_ids = ? WHERE id = ?", batch)
         conn.commit()
 
     conn.close()
@@ -171,9 +165,7 @@ def create_index(db_path: str) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Pre-compute nearest neighbors for papers"
-    )
+    parser = argparse.ArgumentParser(description="Pre-compute nearest neighbors for papers")
     parser.add_argument(
         "--db",
         type=str,
