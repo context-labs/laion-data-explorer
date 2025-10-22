@@ -796,6 +796,7 @@ export default function LaionApp() {
         paperId={selectedPaperId}
         onClose={() => setSelectedPaperId(null)}
         onPaperClick={(paperId) => setSelectedPaperId(paperId)}
+        clusters={clusters}
       />
       <DialogRoot open={welcomeDialogOpen} onOpenChange={setWelcomeDialogOpen}>
         <DialogContent className="max-w-2xl">

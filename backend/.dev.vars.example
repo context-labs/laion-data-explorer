@@ -1,0 +1,7 @@
+# Local development environment variables for Wrangler
+# Copy this file to .dev.vars and update with your local paths
+# These are only used in local dev mode (wrangler dev)
+
+# Absolute path to the local SQLite database
+# Example: /Users/yourname/Documents/laion-data-explorer/backend/data/db.sqlite
+LOCAL_DB_PATH=

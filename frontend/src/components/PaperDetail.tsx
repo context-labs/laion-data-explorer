@@ -12,6 +12,7 @@ import {
 } from "~/ui";
 
 import type {
+  ClusterInfo,
   PaperDetail as PaperDetailType,
   PaperSummary,
   SummarizationData,
@@ -22,12 +23,14 @@ interface PaperDetailProps {
   paperId: number | null;
   onClose: () => void;
   onPaperClick?: (paperId: number) => void;
+  clusters?: ClusterInfo[];
 }
 
 export function PaperDetail({
   paperId,
   onClose,
   onPaperClick,
+  clusters = [],
 }: PaperDetailProps) {
   const [paper, setPaper] = useState<PaperDetailType | null>(null);
   const [loading, setLoading] = useState(false);
@@ -101,6 +104,22 @@ export function PaperDetail({
     }
   }
 
+  // Get cluster color from clusters data
+  const clusterColor = paper?.cluster_id
+    ? clusters.find((c) => c.cluster_id === paper.cluster_id)?.color ??
+      "#888888"
+    : "#888888";
+
+  // Convert hex color to rgba with opacity for border
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  const clusterBorderColor = hexToRgba(clusterColor, 0.8);
+
   return (
     <Sheet
       open={paperId !== null}
@@ -124,9 +143,7 @@ export function PaperDetail({
           <SheetTitle
             className={`text-left text-2xl leading-tight text-foreground`}
           >
-            {paper?.title === ""
-              ? "[No title extracted]"
-              : (paper?.title ?? "Loading...")}
+            Paper Details
           </SheetTitle>
         </SheetHeader>
         <div className="space-y-6">
@@ -136,64 +153,70 @@ export function PaperDetail({
           {error && <p className="text-destructive">Error: {error}</p>}
           {paper && (
             <>
-              <div
-                className={`
-                  grid grid-cols-2 gap-4 rounded-lg border border-border
-                  bg-muted/50 p-4
-
-                  md:grid-cols-4
+              <div className="rounded-lg border border-border bg-muted/50 p-4">
+                <div>
+                  <h3
+                    className={`mb-3 text-base font-semibold text-card-foreground`}
+                  >
+                    Paper Title
+                  </h3>
+                  <h2 className="leading-tight text-foreground w-[95%]">
+                    {paper.title === ""
+                      ? "[No title extracted]"
+                      : paper.title ?? "Untitled"}
+                  </h2>
+                </div>
+                <div
+                  className={`
+                  flex flex-col sm:flex-row gap-8 mt-4
                 `}
-              >
-                <div>
-                  <div
-                    className={`
+                >
+                  <div>
+                    <div
+                      className={`
                       mb-1 text-xs font-medium uppercase tracking-wide
                       text-muted-foreground
                     `}
-                  >
-                    Cluster
+                    >
+                      Cluster
+                    </div>
+                    <div
+                      className={`
+                       inline-flex items-center rounded-sm px-3 py-1 text-sm
+                       font-medium text-foreground
+                     `}
+                      style={{
+                        border: `1px solid ${clusterBorderColor}`,
+                      }}
+                    >
+                      {paper.cluster_label ?? "N/A"}
+                    </div>
                   </div>
-                  <div className="text-sm font-medium text-foreground">
-                    {paper.cluster_label ?? "N/A"}
-                  </div>
-                </div>
-                <div>
-                  <div
-                    className={`
+                  <div>
+                    <div
+                      className={`
                       mb-1 text-xs font-medium uppercase tracking-wide
                       text-muted-foreground
                     `}
-                  >
-                    Field
+                    >
+                      Field
+                    </div>
+                    <div className="text-sm font-medium text-foreground py-1">
+                      {paper.field_subfield ?? "Unknown"}
+                    </div>
                   </div>
-                  <div className="text-sm font-medium text-foreground">
-                    {paper.field_subfield ?? "Unknown"}
-                  </div>
-                </div>
-                <div>
-                  <div
-                    className={`
+                  <div>
+                    <div
+                      className={`
                       mb-1 text-xs font-medium uppercase tracking-wide
                       text-muted-foreground
                     `}
-                  >
-                    Year
-                  </div>
-                  <div className="text-sm font-medium text-foreground">
-                    {paper.publication_year ?? "N/A"}
-                  </div>
-                </div>
-                <div>
-                  <div
-                    className={`
-                      mb-1 text-xs font-medium uppercase tracking-wide
-                      text-muted-foreground
-                    `}
-                  >
-                    Classification
-                  </div>
-                  <div className="text-sm font-bold text-foreground">
-                    {paper.classification?.split("_").join(" ") ?? "N/A"}
+                    >
+                      Year
+                    </div>
+                    <div className="text-sm font-medium text-foreground py-1">
+                      {paper.publication_year ?? "Unknown"}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -219,6 +242,14 @@ export function PaperDetail({
                     Nearest Papers
                   </AccordionTrigger>
                   <AccordionContent>
+                    <p className="mb-1 text-xs text-muted-foreground">
+                      Showing papers closest to this one in embedding space,
+                      calculated using Euclidean distance.
+                    </p>
+                    <p className="mb-4 text-xs text-muted-foreground">
+                      These papers are semantically similar based on their
+                      content and methodology.
+                    </p>
                     {loadingNearest && (
                       <p className="text-sm text-muted-foreground">
                         Loading nearest papers...

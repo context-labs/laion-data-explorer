@@ -42,6 +42,7 @@ yarn-error.log*
 # local env files
 .env
 .env*.local
+.dev.vars
 
 # vercel
 .vercel
@@ -109,3 +110,6 @@ __pycache__/
 git-crypt-key-kuzco
 
 rclone.conf
+
+# Wrangler local state
+.wrangler/

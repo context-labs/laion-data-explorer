@@ -3,6 +3,7 @@
 import gzip
 import json
 import logging
+import os
 import sqlite3
 import time
 from pathlib import Path
@@ -29,7 +30,7 @@ from models import (
 # Note: In Cloudflare Workers, all logs go to stderr and show as errors in wrangler
 # Set to WARNING to reduce log noise, or INFO for detailed performance metrics
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.INFO,  # Changed to INFO for debugging database connection
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
@@ -49,8 +50,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database path
-DB_PATH = Path(__file__).parent.parent / "data" / "db.sqlite"
+# Database path - try multiple locations for robustness
+# First, check if we're in local dev mode using an environment variable
+DB_PATH = None
+local_db_path = os.environ.get("LOCAL_DB_PATH")
+
+if local_db_path:
+    # Use explicitly configured path for local development
+    DB_PATH = Path(local_db_path)
+    logger.info(f"Using LOCAL_DB_PATH: {DB_PATH.resolve()}")
+else:
+    # Try relative to the worker file
+    DB_PATH = Path(__file__).parent.parent / "data" / "db.sqlite"
+    if not DB_PATH.exists():
+        logger.warning(
+            f"DB not found at {DB_PATH.resolve()}, trying backend/data/db.sqlite"
+        )
+        # Try relative to current working directory
+        DB_PATH = Path("backend/data/db.sqlite")
+    if not DB_PATH.exists():
+        logger.warning(f"DB not found at {DB_PATH.resolve()}, trying data/db.sqlite")
+        # Try just data/db.sqlite (when cwd is backend/)
+        DB_PATH = Path("data/db.sqlite")
+
+logger.info(f"Using database at: {DB_PATH.resolve()} (exists: {DB_PATH.exists()})")
 CACHE_TTL_SECONDS = 5
 
 
@@ -130,28 +153,42 @@ class BaseDatabase:
 class SqliteDatabase(BaseDatabase):
     def __init__(self, db_path: Path) -> None:
         self.db_path = db_path
+        logger.info(f"SqliteDatabase initialized with path: {self.db_path.resolve()}")
+        logger.info(f"Database file exists: {self.db_path.exists()}")
 
     async def fetch_all(
         self, query: str, params: Optional[Sequence[Any]] = None
     ) -> List[Dict[str, Any]]:
         params = _normalize_params(params)
-        with sqlite3.connect(str(self.db_path)) as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute(query, params)
-            rows = cursor.fetchall()
-        return [dict(row) for row in rows]
+        try:
+            with sqlite3.connect(str(self.db_path)) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+                rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except sqlite3.OperationalError as e:
+            logger.error(
+                f"SQLite error with db_path={self.db_path.resolve()}, exists={self.db_path.exists()}: {e}"
+            )
+            raise
 
     async def fetch_one(
         self, query: str, params: Optional[Sequence[Any]] = None
     ) -> Optional[Dict[str, Any]]:
         params = _normalize_params(params)
-        with sqlite3.connect(str(self.db_path)) as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute(query, params)
-            row = cursor.fetchone()
-        return dict(row) if row else None
+        try:
+            with sqlite3.connect(str(self.db_path)) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+                row = cursor.fetchone()
+            return dict(row) if row else None
+        except sqlite3.OperationalError as e:
+            logger.error(
+                f"SQLite error with db_path={self.db_path.resolve()}, exists={self.db_path.exists()}: {e}"
+            )
+            raise
 
 
 class D1Database(BaseDatabase):
@@ -203,7 +240,9 @@ def get_database(request: Optional[Request] = None) -> BaseDatabase:
         if env is not None:
             binding = getattr(env, "LAION_DB", None) or getattr(env, "DB", None)
             if binding is not None:
+                logger.info("Using D1 database binding")
                 return D1Database(binding)
+    logger.info(f"Using SQLite database at: {DB_PATH.resolve()}")
     return SqliteDatabase(DB_PATH)
 
 
