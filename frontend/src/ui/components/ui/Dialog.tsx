@@ -269,7 +269,7 @@ function Dialog(props: DialogProps) {
         {footer != null && footer}
         {footer == null && shouldShowFooter && (
           <DialogFooter className="flex items-end justify-end gap-2">
-            { }
+            {}
             {leftButton != null ? (
               leftButton
             ) : hideCloseButton ? (
@@ -283,7 +283,7 @@ function Dialog(props: DialogProps) {
                 {cancelTitle}
               </Button>
             )}
-            { }
+            {}
             {confirmButton != null ? (
               confirmButton
             ) : hideConfirmButton ? (

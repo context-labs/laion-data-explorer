@@ -127,6 +127,22 @@ tasks:
         cd frontend;
         bun run tsc
 
+  frontend:lint:
+    desc: Lint frontend code with ESLint
+    cmds:
+      - |
+        echo "==> Linting frontend code";
+        cd frontend;
+        bun run lint
+
+  frontend:lint:fix:
+    desc: Lint and fix frontend code with ESLint
+    cmds:
+      - |
+        echo "==> Linting and fixing frontend code";
+        cd frontend;
+        bun run lint:fix
+
   format:
     desc: Format both frontend and backend code
     cmds:
@@ -140,14 +156,16 @@ tasks:
       - task frontend:format:check
 
   lint:
-    desc: Lint backend code with Ruff
+    desc: Lint both frontend and backend code
     cmds:
       - task backend:lint
+      - task frontend:lint
 
   lint:fix:
-    desc: Lint and fix backend code with Ruff
+    desc: Lint and fix both frontend and backend code
     cmds:
       - task backend:lint:fix
+      - task frontend:lint:fix
 
   setup:
     desc: Setup tasks
