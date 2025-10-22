@@ -58,16 +58,13 @@ local_db_path = os.environ.get("LOCAL_DB_PATH")
 if local_db_path:
     # Use explicitly configured path for local development
     DB_PATH = Path(local_db_path)
-    logger.info(f"Using LOCAL_DB_PATH: {DB_PATH.resolve()}")
 else:
     # Try relative to the worker file
     DB_PATH = Path(__file__).parent.parent / "data" / "db.sqlite"
     if not DB_PATH.exists():
-        logger.warning(f"DB not found at {DB_PATH.resolve()}, trying backend/data/db.sqlite")
         # Try relative to current working directory
         DB_PATH = Path("backend/data/db.sqlite")
     if not DB_PATH.exists():
-        logger.warning(f"DB not found at {DB_PATH.resolve()}, trying data/db.sqlite")
         # Try just data/db.sqlite (when cwd is backend/)
         DB_PATH = Path("data/db.sqlite")
 
@@ -220,9 +217,7 @@ def get_database(request: Request | None = None) -> BaseDatabase:
         if env is not None:
             binding = getattr(env, "LAION_DB", None) or getattr(env, "DB", None)
             if binding is not None:
-                logger.info("Using D1 database binding")
                 return D1Database(binding)
-    logger.info(f"Using SQLite database at: {DB_PATH.resolve()}")
     return SqliteDatabase(DB_PATH)
 
 

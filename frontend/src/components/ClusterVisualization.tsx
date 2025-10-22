@@ -1,4 +1,5 @@
 import { Label, Slider, Switch, useTheme } from "~/ui";
+import type { Data } from "plotly.js";
 import { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 import type { ClusterInfo, PaperSummary } from "../types";
@@ -24,8 +25,8 @@ export function ClusterVisualization({
   layoutType = "original",
 }: ClusterVisualizationProps) {
   const { isDarkTheme } = useTheme();
-  const [plotData, setPlotData] = useState<unknown[]>([]);
-  const [sceneAnnotations, setSceneAnnotations] = useState<unknown[]>([]);
+  const [plotData, setPlotData] = useState<Data[]>([]);
+  const [sceneAnnotations, setSceneAnnotations] = useState<any[]>([]);
   const [revision, setRevision] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [cameraRevision, setCameraRevision] = useState(0);
@@ -34,9 +35,10 @@ export function ClusterVisualization({
     // Set lower density on mobile for better performance
     return typeof window !== "undefined" && window.innerWidth < 1024 ? 20 : 100;
   });
-  const [zoomLevel, setZoomLevel] = useState(1.0);
+  const [isModifierPressed, setIsModifierPressed] = useState(false);
+  const [prevLayoutType, setPrevLayoutType] = useState(layoutType);
   // Use a stable string to maintain camera position across data changes
-  const uirevision = `camera-${cameraRevision}`;
+  const uirevision = `camera-${cameraRevision}-${layoutType}`;
 
   useEffect(() => {
     // Group papers by cluster
@@ -157,7 +159,7 @@ export function ClusterVisualization({
             },
           },
           customdata: clusterPapers.map((p) => [p.id, clusterId]), // Store both paper ID and cluster ID
-        };
+        } as Data;
       },
     );
 
@@ -209,7 +211,7 @@ export function ClusterVisualization({
       clusterMap.get(paper.cluster_id)?.push(paper);
     });
 
-    const annotations: unknown[] = [];
+    const annotations: any[] = [];
 
     Array.from(clusterMap.entries()).forEach(
       ([clusterId, clusterPapers], clusterIndex) => {
@@ -280,6 +282,45 @@ export function ClusterVisualization({
       return () => clearTimeout(timer);
     }
   }, [plotData.length, isLoaded]);
+
+  // Reset camera when layout type changes
+  useEffect(() => {
+    if (prevLayoutType !== layoutType) {
+      setPrevLayoutType(layoutType);
+      setCameraRevision((prev) => prev + 1);
+    }
+  }, [layoutType, prevLayoutType]);
+
+  // Track modifier key state (Ctrl on Windows/Linux, Cmd on Mac)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        setIsModifierPressed(true);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      // When Ctrl or Meta is released, check if either is still pressed
+      if (!event.ctrlKey && !event.metaKey) {
+        setIsModifierPressed(false);
+      }
+    };
+
+    // Reset state when window loses focus
+    const handleBlur = () => {
+      setIsModifierPressed(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, []);
 
   // Handle reset camera on 'R' key press
   useEffect(() => {
@@ -439,65 +480,9 @@ export function ClusterVisualization({
             }}
           >
             Right click + drag to pan | Press 'R' to reset viewpoint
+            <br />
+            Click + Ctrl/Meta Key to open paper details
           </div>
-        </div>
-      </div>
-      {/* Mobile zoom slider */}
-      <div
-        className="lg:hidden"
-        style={{
-          position: "absolute",
-          top: "16px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 10,
-          backgroundColor: isDarkTheme
-            ? "rgba(18, 25, 38, 0.95)"
-            : "rgba(255, 255, 255, 0.95)",
-          padding: "12px 16px",
-          borderRadius: "8px",
-          border: isDarkTheme ? "1px solid #374151" : "1px solid #ddd",
-          minWidth: "280px",
-          maxWidth: "90%",
-          backdropFilter: "blur(8px)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
-          <span
-            style={{
-              fontSize: "14px",
-              color: isDarkTheme ? "#d1d5db" : "#666",
-              fontWeight: "500",
-            }}
-          >
-            Zoom
-          </span>
-          <div style={{ flex: 1 }}>
-            <Slider
-              value={[zoomLevel]}
-              min={0.3}
-              max={2.5}
-              step={0.1}
-              onValueChange={([value]) => value && setZoomLevel(value)}
-              aria-label="Zoom level"
-            />
-          </div>
-          <span
-            style={{
-              fontSize: "12px",
-              color: isDarkTheme ? "#9ca3af" : "#888",
-              minWidth: "32px",
-              textAlign: "right",
-            }}
-          >
-            {zoomLevel.toFixed(1)}x
-          </span>
         </div>
       </div>
       <div
@@ -560,17 +545,7 @@ export function ClusterVisualization({
                 backgroundcolor: isDarkTheme ? "#0d121c" : "#fafafa",
                 showticklabels: false,
               },
-              camera: (() => {
-                const baseCamera = getCameraForLayout(layoutType);
-                return {
-                  ...baseCamera,
-                  eye: {
-                    x: baseCamera.eye.x * zoomLevel,
-                    y: baseCamera.eye.y * zoomLevel,
-                    z: baseCamera.eye.z * zoomLevel,
-                  },
-                };
-              })(),
+              camera: getCameraForLayout(layoutType),
               annotations: sceneAnnotations,
             },
             paper_bgcolor: isDarkTheme ? "#0d121c" : "white",
@@ -585,16 +560,17 @@ export function ClusterVisualization({
             displaylogo: false,
             responsive: true,
             scrollZoom: true,
-            dragmode: "orbit",
             doubleClick: "reset",
           }}
           useResizeHandler={true}
           style={{ width: "100%", height: "100%" }}
           onClick={(e: unknown) => {
-            const event = e as { points?: { customdata: [number, number] }[] };
-            if (event.points?.[0]?.customdata) {
-              const [paperId] = event.points[0].customdata;
-              if (paperId) {
+            const eventData = e as {
+              points?: { customdata: [number, number] }[];
+            };
+            if (eventData.points?.[0]?.customdata) {
+              const [paperId] = eventData.points[0].customdata;
+              if (paperId && isModifierPressed) {
                 onPaperClick(paperId);
               }
             }

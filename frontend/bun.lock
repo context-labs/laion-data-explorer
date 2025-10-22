@@ -23,6 +23,7 @@
         "@radix-ui/react-toggle": "1.1.10",
         "@radix-ui/react-tooltip": "1.2.8",
         "@tanstack/react-query": "5.90.2",
+        "@types/react-plotly.js": "^2.6.3",
         "@uiw/react-json-view": "2.0.0-alpha.39",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
@@ -482,6 +483,8 @@
     "@types/react": ["@types/react@19.1.0", "", { "dependencies": { "csstype": "^3.0.2" } }, "sha512-UaicktuQI+9UKyA4njtDOGBD/67t8YEBt2xdfqu8+gP9hqPUPsiXlNPcpS2gVdjmis5GKPG3fCxbQLVgxsQZ8w=="],
 
     "@types/react-dom": ["@types/react-dom@19.1.0", "", { "peerDependencies": { "@types/react": "^19.0.0" } }, "sha512-21E2zejNNRtjG4hKIyJz4aWswGEcNFTgttA0bZIRGjj1HA/tbSUxIJnIcYbn98pwJck0cS1bsQhn6eaKqbcFWw=="],
+
+    "@types/react-plotly.js": ["@types/react-plotly.js@2.6.3", "", { "dependencies": { "@types/plotly.js": "*", "@types/react": "*" } }, "sha512-HBQwyGuu/dGXDsWhnQrhH+xcJSsHvjkwfSRjP+YpOsCCWryIuXF78ZCBjpfgO3sCc0Jo8sYp4NOGtqT7Cn3epQ=="],
 
     "@types/react-syntax-highlighter": ["@types/react-syntax-highlighter@15.5.13", "", { "dependencies": { "@types/react": "*" } }, "sha512-uLGJ87j6Sz8UaBAooU0T6lWJ0dBmjZgN1PZTrj05TNql2/XpC6+4HhMT5syIdFUUt+FASfCeLLv4kBygNU+8qA=="],
 

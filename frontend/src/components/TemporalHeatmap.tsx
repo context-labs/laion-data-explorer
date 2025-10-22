@@ -396,12 +396,6 @@ export function TemporalHeatmap({
               colorbar: {
                 title: normalizeByYear ? "% of Year" : "Papers",
                 titleside: "right",
-                tickfont: {
-                  color: isDarkTheme ? "#d1d5db" : "#333",
-                },
-                titlefont: {
-                  color: isDarkTheme ? "#d1d5db" : "#333",
-                },
               },
             },
           ]}
