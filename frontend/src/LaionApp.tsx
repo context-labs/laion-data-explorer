@@ -228,7 +228,6 @@ function MobileNavigation({
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-64 w-full" />
           </div>
         ) : (
           <div className="border-t pt-4">
@@ -668,12 +667,28 @@ export default function LaionApp() {
               `}
             >
               {loading ? (
-                <div className="space-y-4 p-4">
+                <div className="space-y-3 p-4">
+                  <Skeleton className="h-6 w-1/3" />
                   <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-6 w-1/3" />
                   <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-64 w-full" />
-                  <Skeleton className="h-32 w-full" />
+                  <Row className="gap-4">
+                    <Skeleton className="h-8 w-1/3" />
+                    <Skeleton className="h-8 w-1/3" />
+                    <Skeleton className="h-8 w-1/3" />
+                  </Row>
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
                 </div>
               ) : (
                 <ClusterLegend
@@ -698,7 +713,7 @@ export default function LaionApp() {
             <main className="flex-1 overflow-hidden bg-background p-0">
               {loading ? (
                 <div className="flex h-full items-center justify-center">
-                  <Skeleton className="mx-auto h-64 w-64 rounded-full" />
+                  <Skeleton className="mx-auto h-96 w-96 rounded-full" />
                 </div>
               ) : (
                 <ClusterVisualization
