@@ -29,6 +29,7 @@ import {
   BarChartIcon,
   ChartNetworkIcon,
   ChevronRightIcon,
+  GithubIcon,
   LayoutGridIcon,
   Menu,
   MicroscopeIcon,
@@ -94,26 +95,40 @@ function SwipeableSheetContent({
     >
       <DialogTitle className="border-b pb-6 pl-5">
         <div className="flex items-center">
-          <InferenceIcon height={20} width={120} />
+          <a
+            href="https://inference.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex"
+          >
+            <InferenceIcon height={20} width={120} />
+          </a>
           <PlusIcon className="ml-4 h-4 w-4 text-muted-foreground" />
-          <img
-            src={LaionLightLogo}
-            alt="LAION"
-            className={`
-              h-12
+          <a
+            href="https://laion.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex"
+          >
+            <img
+              src={LaionLightLogo}
+              alt="LAION"
+              className={`
+                h-12
 
-              dark:hidden
-            `}
-          />
-          <img
-            src={LaionDarkLogo}
-            alt="LAION"
-            className={`
-              hidden h-12
+                dark:hidden
+              `}
+            />
+            <img
+              src={LaionDarkLogo}
+              alt="LAION"
+              className={`
+                hidden h-12
 
-              dark:block
-            `}
-          />
+                dark:block
+              `}
+            />
+          </a>
         </div>
       </DialogTitle>
       <DialogDescription className="hidden">
@@ -501,26 +516,40 @@ export default function LaionApp() {
         `)}
       >
         <div className="flex items-center">
-          <InferenceIcon height={20} width={120} />
+          <a
+            href="https://inference.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex"
+          >
+            <InferenceIcon height={20} width={120} />
+          </a>
           <PlusIcon className="ml-3 h-3 w-3 text-muted-foreground" />
-          <img
-            src={LaionLightLogo}
-            alt="LAION"
-            className={`
-              h-10
+          <a
+            href="https://laion.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex"
+          >
+            <img
+              src={LaionLightLogo}
+              alt="LAION"
+              className={`
+                h-10
 
-              dark:hidden
-            `}
-          />
-          <img
-            src={LaionDarkLogo}
-            alt="LAION"
-            className={`
-              hidden h-10
+                dark:hidden
+              `}
+            />
+            <img
+              src={LaionDarkLogo}
+              alt="LAION"
+              className={`
+                hidden h-10
 
-              dark:block
-            `}
-          />
+                dark:block
+              `}
+            />
+          </a>
         </div>
         <Sheet onOpenChange={setMobileMenuOpen} open={mobileMenuOpen}>
           <SheetTrigger asChild className="lg:hidden">
@@ -563,26 +592,40 @@ export default function LaionApp() {
         <div className="space-y-1 px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <InferenceIcon height={24} width={164} />
+              <a
+                href="https://inference.net"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex"
+              >
+                <InferenceIcon height={24} width={164} />
+              </a>
               <PlusIcon className="ml-4 h-4 w-4 text-muted-foreground" />
-              <img
-                src={LaionLightLogo}
-                alt="LAION"
-                className={`
-                  h-14
+              <a
+                href="https://laion.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex"
+              >
+                <img
+                  src={LaionLightLogo}
+                  alt="LAION"
+                  className={`
+                    h-14
 
-                  dark:hidden
-                `}
-              />
-              <img
-                src={LaionDarkLogo}
-                alt="LAION"
-                className={`
-                  hidden h-14
+                    dark:hidden
+                  `}
+                />
+                <img
+                  src={LaionDarkLogo}
+                  alt="LAION"
+                  className={`
+                    hidden h-14
 
-                  dark:block
-                `}
-              />
+                    dark:block
+                  `}
+                />
+              </a>
               <ChevronRightIcon className="mr-3 h-4 w-4 text-muted-foreground" />
               <h2 className="font-semibold">Science Dataset Explorer</h2>
             </div>
@@ -601,6 +644,20 @@ export default function LaionApp() {
               />
               <Button
                 size="xs"
+                variant="outline"
+                onClick={() =>
+                  window.open(
+                    "https://github.com/context-labs/laion-data-explorer",
+                    "_blank",
+                    "noopener,noreferrer",
+                  )
+                }
+              >
+                <GithubIcon className="mr-2 h-4 w-4" />
+                GitHub
+              </Button>
+              <Button
+                size="xs"
                 disabled={viewMode === "samples"}
                 variant="outline"
                 onClick={() =>
@@ -608,7 +665,7 @@ export default function LaionApp() {
                 }
               >
                 <NotebookTextIcon className="mr-2 h-4 w-4" />
-                View Papers
+                Paper Explorer
               </Button>
               <Button
                 size="xs"

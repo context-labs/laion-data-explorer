@@ -9,6 +9,7 @@ import {
   SheetTitle,
 } from "~/ui";
 import { useTheme } from "~/ui/providers/ThemeProvider";
+import { GithubIcon } from "lucide-react";
 import BenchmarksDarkImage from "../assets/benchmark-dark-theme.webp";
 import BenchmarksLightImage from "../assets/benchmark-light-theme.webp";
 import { LearnMoreLinks } from "./LearnMoreContent";
@@ -126,7 +127,7 @@ export function LearnMoreSheet({
             </p>
           </Col>
           <Separator className="my-8" />
-          <div className="mt-8 flex justify-start">
+          <div className="mt-8 flex justify-start gap-3">
             <Button
               variant="default"
               onClick={() => {
@@ -136,6 +137,20 @@ export function LearnMoreSheet({
               className="w-full sm:w-auto"
             >
               Interested in the full dataset?
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                window.open(
+                  "https://github.com/context-labs/laion-data-explorer",
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
+              className="w-full sm:w-auto"
+            >
+              <GithubIcon className="mr-2 h-4 w-4" />
+              GitHub
             </Button>
           </div>
         </div>
