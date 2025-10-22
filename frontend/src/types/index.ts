@@ -14,6 +14,7 @@ export interface PaperSummary {
 export interface PaperDetail extends PaperSummary {
   sample: string | null;
   summarization: string | null;
+  nearest_papers: PaperSummary[];
 }
 
 export interface ClusterInfo {
@@ -68,4 +69,20 @@ export interface ClusterTemporalData {
 
 export interface TemporalDataResponse {
   clusters: ClusterTemporalData[];
+}
+
+export interface PaperSample {
+  paper_id: number;
+  sample: string;
+  title: string | null;
+  summarization: string | null;
+  cluster_id: number | null;
+  cluster_label: string | null;
+  field_subfield: string | null;
+  publication_year: number | null;
+  classification: string | null;
+}
+
+export interface PaperSampleList {
+  paper_ids: number[];
 }

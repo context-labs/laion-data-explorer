@@ -33,6 +33,27 @@ class PaperDetail(BaseModel):
     field_subfield: str | None
     publication_year: int | None
     classification: str | None
+    nearest_papers: list["PaperSummary"]
+
+
+class PaperSample(BaseModel):
+    """Paper sample with extracted data and cluster info."""
+
+    paper_id: int
+    sample: str
+    title: str | None
+    summarization: str | None
+    cluster_id: int | None
+    cluster_label: str | None
+    field_subfield: str | None
+    publication_year: int | None
+    classification: str | None
+
+
+class PaperSampleList(BaseModel):
+    """List of paper IDs that have samples."""
+
+    paper_ids: list[int]
 
 
 class ClusterInfo(BaseModel):

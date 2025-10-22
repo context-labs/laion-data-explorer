@@ -20,6 +20,8 @@ from models import (
     ClustersResponse,
     ClusterTemporalData,
     PaperDetail,
+    PaperSample,
+    PaperSampleList,
     PapersResponse,
     PaperSummary,
     TemporalDataPoint,
@@ -429,7 +431,7 @@ async def get_papers(
 
 @app.get("/api/papers/{paper_id}", response_model=PaperDetail)
 async def get_paper(paper_id: int, request: Request):
-    """Get detailed information for a specific paper."""
+    """Get detailed information for a specific paper, including nearest papers."""
     db = get_database(request)
 
     # Note: 'sample' column excluded from query (not available in D1)
@@ -437,7 +439,7 @@ async def get_paper(paper_id: int, request: Request):
         """
         SELECT id, title, summarization, x, y, z, cluster_id,
                COALESCE(claude_label, cluster_label) as cluster_label,
-               field_subfield, publication_year, classification
+               field_subfield, publication_year, classification, nearest_paper_ids
         FROM papers
         WHERE id = ?
     """,
@@ -446,6 +448,48 @@ async def get_paper(paper_id: int, request: Request):
 
     if not row:
         raise HTTPException(status_code=404, detail="Paper not found")
+
+    # Fetch nearest papers if pre-computed IDs exist
+    nearest_papers = []
+    if row["nearest_paper_ids"]:
+        try:
+            nearest_ids = json.loads(row["nearest_paper_ids"])
+            if nearest_ids:
+                # Fetch papers by IDs
+                placeholders = ",".join("?" * len(nearest_ids))
+                nearest_rows = await db.fetch_all(
+                    f"""
+                    SELECT id, title, x, y, z, cluster_id,
+                           COALESCE(claude_label, cluster_label) as cluster_label,
+                           field_subfield, publication_year, classification
+                    FROM papers
+                    WHERE id IN ({placeholders})
+                """,
+                    nearest_ids,
+                )
+
+                # Maintain order from nearest_ids
+                row_map = {r["id"]: r for r in nearest_rows}
+                ordered_rows = [row_map[pid] for pid in nearest_ids if pid in row_map]
+
+                nearest_papers = [
+                    PaperSummary(
+                        id=r["id"],
+                        title=r["title"],
+                        x=r["x"],
+                        y=r["y"],
+                        z=r["z"],
+                        cluster_id=r["cluster_id"],
+                        cluster_label=r["cluster_label"],
+                        field_subfield=r["field_subfield"],
+                        publication_year=r["publication_year"],
+                        classification=r["classification"],
+                    )
+                    for r in ordered_rows
+                ]
+        except (json.JSONDecodeError, KeyError):
+            logger.warning(f"Failed to parse nearest_paper_ids for paper {paper_id}")
+            # nearest_papers remains empty list
 
     return PaperDetail(
         id=row["id"],
@@ -460,6 +504,7 @@ async def get_paper(paper_id: int, request: Request):
         field_subfield=row["field_subfield"],
         publication_year=row["publication_year"],
         classification=row["classification"],
+        nearest_papers=nearest_papers,
     )
 
 
@@ -587,21 +632,73 @@ async def get_nearest_papers(
     """Get the nearest papers to a given paper based on Euclidean distance in embedding space."""
     db = get_database(request)
 
-    # First get the target paper's coordinates
-    target = await db.fetch_one(
+    # Try to use pre-computed nearest neighbors first (fast path)
+    target_paper = await db.fetch_one(
         """
-        SELECT x, y, z
+        SELECT nearest_paper_ids, x, y, z
         FROM papers
-        WHERE id = ? AND x IS NOT NULL AND y IS NOT NULL
+        WHERE id = ?
     """,
         (paper_id,),
     )
 
-    if not target:
-        raise HTTPException(status_code=404, detail="Paper not found or has no coordinates")
+    if not target_paper:
+        raise HTTPException(status_code=404, detail="Paper not found")
 
-    target_x, target_y, target_z = target["x"], target["y"], target["z"]
+    # Fast path: use pre-computed nearest neighbors if available
+    if target_paper["nearest_paper_ids"]:
+        try:
+            nearest_ids = json.loads(target_paper["nearest_paper_ids"])
+            # Limit to requested number
+            nearest_ids = nearest_ids[:limit]
+
+            if nearest_ids:
+                # Fetch papers by IDs
+                placeholders = ",".join("?" * len(nearest_ids))
+                rows = await db.fetch_all(
+                    f"""
+                    SELECT id, title, x, y, z, cluster_id,
+                           COALESCE(claude_label, cluster_label) as cluster_label,
+                           field_subfield, publication_year, classification
+                    FROM papers
+                    WHERE id IN ({placeholders})
+                """,
+                    nearest_ids,
+                )
+
+                # Maintain order from nearest_ids
+                row_map = {row["id"]: row for row in rows}
+                ordered_rows = [row_map[pid] for pid in nearest_ids if pid in row_map]
+
+                papers = [
+                    PaperSummary(
+                        id=row["id"],
+                        title=row["title"],
+                        x=row["x"],
+                        y=row["y"],
+                        z=row["z"],
+                        cluster_id=row["cluster_id"],
+                        cluster_label=row["cluster_label"],
+                        field_subfield=row["field_subfield"],
+                        publication_year=row["publication_year"],
+                        classification=row["classification"],
+                    )
+                    for row in ordered_rows
+                ]
+
+                return PapersResponse(papers=papers)
+        except (json.JSONDecodeError, KeyError):
+            logger.warning(f"Failed to parse pre-computed nearest neighbors for paper {paper_id}, falling back to distance calculation")
+            # Fall through to slow path
+
+    # Slow path: compute distances in real-time (fallback for papers without pre-computed data)
+    if target_paper["x"] is None or target_paper["y"] is None:
+        raise HTTPException(status_code=404, detail="Paper has no coordinates")
+
+    target_x, target_y, target_z = target_paper["x"], target_paper["y"], target_paper["z"]
     target_z = target_z if target_z is not None else 0.0
+
+    logger.info(f"Computing nearest neighbors in real-time for paper {paper_id} (pre-computed data not available)")
 
     # Find nearest papers using Euclidean distance. SQLite doesn't include sqrt, so we sort on squared distance.
     rows = await db.fetch_all(
@@ -731,6 +828,64 @@ async def get_temporal_data(
 async def health():
     """Health check endpoint."""
     return {"status": "ok"}
+
+
+@app.get("/api/samples", response_model=PaperSampleList)
+async def get_sample_ids(request: Request):
+    """Get list of paper IDs that have samples available."""
+    db = get_database(request)
+
+    rows = await db.fetch_all(
+        """
+        SELECT paper_id
+        FROM paper_samples
+        ORDER BY paper_id
+    """
+    )
+
+    paper_ids = [row["paper_id"] for row in rows]
+    return PaperSampleList(paper_ids=paper_ids)
+
+
+@app.get("/api/samples/{paper_id}", response_model=PaperSample)
+async def get_paper_sample(paper_id: int, request: Request):
+    """Get paper sample with extracted data and cluster info."""
+    db = get_database(request)
+
+    # Join paper_samples with papers table to get all data
+    row = await db.fetch_one(
+        """
+        SELECT
+            ps.paper_id,
+            ps.sample,
+            p.title,
+            p.summarization,
+            p.cluster_id,
+            COALESCE(p.claude_label, p.cluster_label) as cluster_label,
+            p.field_subfield,
+            p.publication_year,
+            p.classification
+        FROM paper_samples ps
+        JOIN papers p ON ps.paper_id = p.id
+        WHERE ps.paper_id = ?
+    """,
+        (paper_id,),
+    )
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Paper sample not found")
+
+    return PaperSample(
+        paper_id=row["paper_id"],
+        sample=row["sample"],
+        title=row["title"],
+        summarization=row["summarization"],
+        cluster_id=row["cluster_id"],
+        cluster_label=row["cluster_label"],
+        field_subfield=row["field_subfield"],
+        publication_year=row["publication_year"],
+        classification=row["classification"],
+    )
 
 
 class Default(WorkerEntrypoint):

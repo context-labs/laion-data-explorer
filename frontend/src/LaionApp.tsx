@@ -26,10 +26,10 @@ import {
   BarChartIcon,
   ChartNetworkIcon,
   ChevronRightIcon,
-  InfoIcon,
   LayoutGridIcon,
   Menu,
   MicroscopeIcon,
+  NotebookTextIcon,
   PlusIcon,
   SunMoonIcon,
 } from "lucide-react";
@@ -42,6 +42,7 @@ import { DistributionChart } from "./components/DistributionChart";
 import { LearnMoreContent } from "./components/LearnMoreContent";
 import { LearnMoreSheet } from "./components/LearnMoreSheet";
 import { PaperDetail } from "./components/PaperDetail";
+import { PaperSampleViewer } from "./components/PaperSampleViewer";
 import type { HeatmapSortOption } from "./components/TemporalHeatmap";
 import { TemporalHeatmap } from "./components/TemporalHeatmap";
 import type {
@@ -121,7 +122,7 @@ function SwipeableSheetContent({
 }
 
 type MobileNavigationProps = {
-  viewMode: "3d" | "heatmap" | "stacked" | "distribution";
+  viewMode: "3d" | "heatmap" | "stacked" | "distribution" | "samples";
   onRandomPaper: () => void;
   clusters: ClusterInfo[];
   selectedClusterIds: Set<number>;
@@ -264,7 +265,7 @@ export default function LaionApp() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [allPapers, setAllPapers] = useState<PaperSummary[]>([]);
   const [viewMode, setViewMode] = useState<
-    "3d" | "heatmap" | "stacked" | "distribution"
+    "3d" | "heatmap" | "stacked" | "distribution" | "samples"
   >("3d");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [layoutType, setLayoutType] = useState<LayoutType>("original");
@@ -525,65 +526,78 @@ export default function LaionApp() {
               <ChevronRightIcon className="mr-3 h-4 w-4 text-muted-foreground" />
               <h2 className="font-semibold">Science Dataset Explorer</h2>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  onClick={() => setViewMode("3d")}
-                  variant={viewMode === "3d" ? "default" : "outline"}
-                  size="xs"
-                  className="flex w-24 items-center gap-1.5"
-                >
-                  <ChartNetworkIcon className="h-3.5 w-3.5" />
-                  Clusters
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => setViewMode("distribution")}
-                  variant={viewMode === "distribution" ? "default" : "outline"}
-                  size="xs"
-                  className="flex w-32 items-center gap-1.5"
-                >
-                  <BarChart3Icon className="h-3.5 w-3.5" />
-                  Distribution
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => setViewMode("stacked")}
-                  variant={viewMode === "stacked" ? "default" : "outline"}
-                  size="xs"
-                  className="flex w-24 items-center gap-1.5"
-                >
-                  <BarChartIcon className="h-3.5 w-3.5" />
-                  Stacked
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => setViewMode("heatmap")}
-                  variant={viewMode === "heatmap" ? "default" : "outline"}
-                  size="xs"
-                  className="flex w-24 items-center gap-1.5"
-                >
-                  <LayoutGridIcon className="h-3.5 w-3.5" />
-                  Heatmap
-                </Button>
-              </div>
+            <div className="flex items-center gap-3">
+              <ThemeToggle
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    className={`flex items-center gap-2`}
+                  >
+                    <SunMoonIcon className="h-4 w-4" />
+                    Theme
+                  </Button>
+                }
+              />
+              <Button
+                size="xs"
+                disabled={viewMode === "samples"}
+                variant="outline"
+                onClick={() =>
+                  setViewMode(viewMode === "samples" ? "3d" : "samples")
+                }
+              >
+                <NotebookTextIcon className="mr-2 h-4 w-4" />
+                View Papers
+              </Button>
+              <Button size="xs" onClick={() => setLearnMoreSheetOpen(true)}>
+                <AtomIcon className="mr-2 h-4 w-4" />
+                What is this?
+              </Button>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Button
+                type="button"
+                onClick={() => setViewMode("3d")}
+                variant={viewMode === "3d" ? "default" : "outline"}
                 size="xs"
-                onClick={() => setLearnMoreSheetOpen(true)}
-                className="text-muted-foreground hover:text-foreground"
+                className="flex w-fit items-center justify-start gap-1.5"
               >
-                <InfoIcon className="mr-2 h-4 w-4" />
-                What is this?
+                <ChartNetworkIcon className="h-3.5 w-3.5" />
+                Embeddings
               </Button>
-              <p className="text-sm text-muted-foreground">
-                This is a dataset of structured summaries from 100,000
-                scientific papers generated using a custom fine-tuned model.
-              </p>
+              <Button
+                type="button"
+                onClick={() => setViewMode("distribution")}
+                variant={viewMode === "distribution" ? "default" : "outline"}
+                size="xs"
+                className="flex w-32 items-center gap-1.5"
+              >
+                <BarChart3Icon className="h-3.5 w-3.5" />
+                Distribution
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setViewMode("stacked")}
+                variant={viewMode === "stacked" ? "default" : "outline"}
+                size="xs"
+                className="flex w-fit items-center justify-start gap-1.5"
+              >
+                <BarChartIcon className="h-3.5 w-3.5" />
+                Stacked
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setViewMode("heatmap")}
+                variant={viewMode === "heatmap" ? "default" : "outline"}
+                size="xs"
+                className="flex w-fit items-center justify-start gap-1.5"
+              >
+                <LayoutGridIcon className="h-3.5 w-3.5" />
+                Heatmap
+              </Button>
             </div>
             <Row className="items-center gap-4">
               {!loading && viewMode === "3d" && (
@@ -594,7 +608,7 @@ export default function LaionApp() {
                       setLayoutType(value as LayoutType)
                     }
                     options={[
-                      { value: "original", label: "Scatter" },
+                      { value: "original", label: "Embedding Clusters" },
                       { value: "sphere", label: "Sphere" },
                       { value: "galaxy", label: "Galaxy" },
                       { value: "wave", label: "Wave" },
@@ -602,7 +616,7 @@ export default function LaionApp() {
                       { value: "torus", label: "Torus" },
                     ]}
                     placeholder="Select layout"
-                    className="w-[160px]"
+                    className="w-[180px]"
                   />
                   <Button
                     type="button"
@@ -635,18 +649,6 @@ export default function LaionApp() {
                   />
                 </div>
               )}
-              <ThemeToggle
-                trigger={
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    className={`flex items-center gap-2`}
-                  >
-                    <SunMoonIcon className="h-4 w-4" />
-                    Theme
-                  </Button>
-                }
-              />
             </Row>
           </div>
         </div>
@@ -775,6 +777,10 @@ export default function LaionApp() {
                 onNormalizeByYearChange={setHeatmapNormalizeByYear}
               />
             )}
+          </main>
+        ) : viewMode === "samples" ? (
+          <main className="flex-1 overflow-hidden bg-background">
+            <PaperSampleViewer clusters={clusters} />
           </main>
         ) : (
           <main className="flex-1 overflow-hidden bg-background">

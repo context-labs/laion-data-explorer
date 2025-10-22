@@ -6,7 +6,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "~/ui";
-import BenchmarksImage from "../assets/benchmarks.png";
+import { useTheme } from "~/ui/providers/ThemeProvider";
+import BenchmarksDarkImage from "../assets/benchmark-dark-theme.webp";
+import BenchmarksLightImage from "../assets/benchmark-light-theme.webp";
 import { LearnMoreLinks } from "./LearnMoreContent";
 
 const SCHEMA_CODE = `interface ScientificSummary {
@@ -41,6 +43,8 @@ interface LearnMoreSheetProps {
 }
 
 export function LearnMoreSheet({ open, onClose }: LearnMoreSheetProps) {
+  const { isDarkTheme } = useTheme();
+
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent
@@ -66,7 +70,7 @@ export function LearnMoreSheet({ open, onClose }: LearnMoreSheetProps) {
             </p>
             <h2 className="mt-6">Model Benchmarks</h2>
             <img
-              src={BenchmarksImage}
+              src={isDarkTheme ? BenchmarksDarkImage : BenchmarksLightImage}
               alt="Model Benchmarks"
               className="w-full my-4 rounded-lg border"
             />

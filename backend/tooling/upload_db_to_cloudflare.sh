@@ -68,10 +68,18 @@ CREATE TABLE IF NOT EXISTS papers (
   z REAL,
   cluster_id INTEGER,
   cluster_label TEXT,
-  claude_label TEXT
+  claude_label TEXT,
+  nearest_paper_ids TEXT
 );
 
--- Create index
+-- Create paper_samples table
+CREATE TABLE IF NOT EXISTS paper_samples (
+  paper_id INTEGER PRIMARY KEY,
+  sample TEXT NOT NULL,
+  FOREIGN KEY (paper_id) REFERENCES papers(id)
+);
+
+-- Create indexes
 CREATE INDEX ix_papers_id ON papers (id);
 EOF
 
@@ -93,7 +101,8 @@ INSERT INTO target.papers (
   z,
   cluster_id,
   cluster_label,
-  claude_label
+  claude_label,
+  nearest_paper_ids
 )
 SELECT
   id,
@@ -107,11 +116,21 @@ SELECT
   z,
   cluster_id,
   cluster_label,
-  claude_label
+  claude_label,
+  nearest_paper_ids
 FROM papers;
+
+-- Copy paper_samples table
+INSERT INTO target.paper_samples (paper_id, sample)
+SELECT paper_id, sample
+FROM paper_samples;
 
 DETACH DATABASE target;
 EOF
+
+echo -e "${GREEN}Copying paper_samples table...${NC}"
+PAPER_SAMPLES_COUNT=$(sqlite3 "$SOURCE_DB" "SELECT COUNT(*) FROM paper_samples;")
+echo -e "Paper samples: ${YELLOW}$PAPER_SAMPLES_COUNT${NC}"
 
 echo -e "${GREEN}Skipping cache tables (no longer used)...${NC}"
 # Cache tables removed - API now queries papers table directly

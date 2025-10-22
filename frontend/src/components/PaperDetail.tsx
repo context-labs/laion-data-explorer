@@ -33,13 +33,10 @@ export function PaperDetail({
   const [paper, setPaper] = useState<PaperDetailType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [nearestPapers, setNearestPapers] = useState<PaperSummary[]>([]);
-  const [loadingNearest, setLoadingNearest] = useState(false);
 
   useEffect(() => {
     if (!paperId) {
       setPaper(null);
-      setNearestPapers([]);
       return;
     }
 
@@ -61,32 +58,7 @@ export function PaperDetail({
       });
   }, [paperId]);
 
-  const fetchNearestPapers = () => {
-    if (!paperId || loadingNearest) return;
-
-    // Only fetch if we don't have data yet
-    if (nearestPapers.length > 0) return;
-
-    setLoadingNearest(true);
-
-    fetch(getApiUrl(`/api/papers/${paperId}/nearest?limit=15`))
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch nearest papers");
-        return res.json();
-      })
-      .then((data: { papers: PaperSummary[] }) => {
-        setNearestPapers(data.papers);
-        setLoadingNearest(false);
-      })
-      .catch((err: Error) => {
-        console.error("Error fetching nearest papers:", err);
-        setLoadingNearest(false);
-      });
-  };
-
   const handleNearestPaperClick = (nearPaperId: number) => {
-    // Reset nearest papers when navigating to a new paper
-    setNearestPapers([]);
     if (onPaperClick) {
       onPaperClick(nearPaperId);
     }
@@ -218,44 +190,29 @@ export function PaperDetail({
                   </div>
                 </div>
               </div>
-              <Accordion
-                type="single"
-                collapsible
-                className="w-full"
-                onValueChange={(value) => {
-                  if (value === "nearest") {
-                    fetchNearestPapers();
-                  }
-                }}
-              >
-                <AccordionItem value="nearest" className="border-border">
-                  <AccordionTrigger
-                    className={`
-                      text-sm font-bold text-foreground
+              {paper.nearest_papers && paper.nearest_papers.length > 0 && (
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="nearest" className="border-border">
+                    <AccordionTrigger
+                      className={`
+                        text-sm font-bold text-foreground
 
-                      hover:no-underline
-                    `}
-                  >
-                    View {nearestPapers.length > 0 ? nearestPapers.length : 15}{" "}
-                    Nearest Papers
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <p className="mb-1 text-xs text-muted-foreground">
-                      Showing papers closest to this one in embedding space,
-                      calculated using Euclidean distance.
-                    </p>
-                    <p className="mb-4 text-xs text-muted-foreground">
-                      These papers are semantically similar based on their
-                      content and methodology.
-                    </p>
-                    {loadingNearest && (
-                      <p className="text-sm text-muted-foreground">
-                        Loading nearest papers...
+                        hover:no-underline
+                      `}
+                    >
+                      View {paper.nearest_papers.length} Nearest Papers
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="mb-1 text-xs text-muted-foreground">
+                        Showing papers closest to this one in embedding space,
+                        calculated using Euclidean distance.
                       </p>
-                    )}
-                    {!loadingNearest && nearestPapers.length > 0 && (
+                      <p className="mb-4 text-xs text-muted-foreground">
+                        These papers are semantically similar based on their
+                        content and methodology.
+                      </p>
                       <div className="space-y-2">
-                        {nearestPapers.map((nearPaper) => (
+                        {paper.nearest_papers.map((nearPaper) => (
                           <button
                             key={nearPaper.id}
                             onClick={() =>
@@ -290,10 +247,10 @@ export function PaperDetail({
                           </button>
                         ))}
                       </div>
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )}
               {summaryData?.summary && (
                 <div className="space-y-6">
                   {summaryData.summary.authors && (
