@@ -6,7 +6,11 @@ export const LearnMoreLinks = () => {
         href="https://inference.net"
         target="_blank"
         rel="noopener noreferrer"
-        className="underline hover:text-foreground"
+        className={`
+          underline
+
+          hover:text-foreground
+        `}
       >
         Inference.net
       </a>
@@ -15,7 +19,11 @@ export const LearnMoreLinks = () => {
         href="https://laion.ai"
         target="_blank"
         rel="noopener noreferrer"
-        className="underline hover:text-foreground"
+        className={`
+          underline
+
+          hover:text-foreground
+        `}
       >
         LAION
       </a>

@@ -137,7 +137,7 @@ export function CodeBlock({
 }: CodeBlockProps) {
   const [, copyToClipboard] = useCopyToClipboard();
   const [tab, setTab] = useState<string>(
-    ("tabs" in rest ? rest.tabs[0]?.label : "") ?? "",
+    ("tabs" in rest ? rest.tabs[0]?.label : null) ?? "",
   );
 
   const handleCopy = useCallback(

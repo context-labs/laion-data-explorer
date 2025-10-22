@@ -13,7 +13,7 @@ export function useSwipeRightDetector(callback: (open: boolean) => void) {
   const [touchStartX, setTouchStartX] = useState(0);
 
   const onTouchStart = useCallback((e: TouchEvent) => {
-    setTouchStartX(e.touches[0]?.clientX ?? 0);
+    setTouchStartX(e.touches[0].clientX);
   }, []);
 
   const onTouchMove = useCallback((_e: TouchEvent) => {
@@ -22,7 +22,7 @@ export function useSwipeRightDetector(callback: (open: boolean) => void) {
 
   const onTouchEnd = useCallback(
     (e: TouchEvent) => {
-      const touchEndX = e.changedTouches[0]?.clientX ?? 0;
+      const touchEndX = e.changedTouches[0].clientX;
       if (touchEndX - touchStartX > 50) {
         callback(false);
       }

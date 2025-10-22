@@ -69,7 +69,6 @@ export function PaperDetail({
   let summaryData: SummarizationData | null = null;
   if (paper?.summarization) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       summaryData = JSON.parse(paper.summarization);
     } catch (e) {
       console.error("Failed to parse summarization:", e);
@@ -131,11 +130,13 @@ export function PaperDetail({
               <div className="rounded-lg border border-border bg-muted/50 p-4">
                 <div>
                   <h3
-                    className={`mb-3 text-base font-semibold text-card-foreground`}
+                    className={`
+                      mb-3 text-base font-semibold text-card-foreground
+                    `}
                   >
                     Paper Title
                   </h3>
-                  <h2 className="leading-tight text-foreground w-[95%]">
+                  <h2 className="w-[95%] leading-tight text-foreground">
                     {paper.title === ""
                       ? "[No title extracted]"
                       : (paper.title ?? "Untitled")}
@@ -143,23 +144,25 @@ export function PaperDetail({
                 </div>
                 <div
                   className={`
-                  flex flex-col sm:flex-row gap-8 mt-4
-                `}
+                    mt-4 flex flex-col gap-8
+
+                    sm:flex-row
+                  `}
                 >
                   <div>
                     <div
                       className={`
-                      mb-1 text-xs font-medium uppercase tracking-wide
-                      text-muted-foreground
-                    `}
+                        mb-1 text-xs font-medium uppercase tracking-wide
+                        text-muted-foreground
+                      `}
                     >
                       Cluster
                     </div>
                     <div
                       className={`
-                       inline-flex items-center rounded-sm px-3 py-1 text-sm
-                       font-medium text-foreground
-                     `}
+                        inline-flex items-center rounded-sm px-3 py-1 text-sm
+                        font-medium text-foreground
+                      `}
                       style={{
                         border: `1px solid ${clusterBorderColor}`,
                       }}
@@ -170,32 +173,32 @@ export function PaperDetail({
                   <div>
                     <div
                       className={`
-                      mb-1 text-xs font-medium uppercase tracking-wide
-                      text-muted-foreground
-                    `}
+                        mb-1 text-xs font-medium uppercase tracking-wide
+                        text-muted-foreground
+                      `}
                     >
                       Field
                     </div>
-                    <div className="text-sm font-medium text-foreground py-1">
+                    <div className="py-1 text-sm font-medium text-foreground">
                       {paper.field_subfield ?? "Unknown"}
                     </div>
                   </div>
                   <div>
                     <div
                       className={`
-                      mb-1 text-xs font-medium uppercase tracking-wide
-                      text-muted-foreground
-                    `}
+                        mb-1 text-xs font-medium uppercase tracking-wide
+                        text-muted-foreground
+                      `}
                     >
                       Year
                     </div>
-                    <div className="text-sm font-medium text-foreground py-1">
+                    <div className="py-1 text-sm font-medium text-foreground">
                       {paper.publication_year ?? "Unknown"}
                     </div>
                   </div>
                 </div>
               </div>
-              {paper.nearest_papers && paper.nearest_papers.length > 0 && (
+              {paper.nearest_papers.length > 0 && (
                 <Accordion
                   type="single"
                   collapsible
@@ -205,7 +208,13 @@ export function PaperDetail({
                 >
                   <AccordionItem value="nearest" className="border-border">
                     <AccordionTrigger>
-                      <p className="text-base font-semibold text-foreground hover:underline ml-1">
+                      <p
+                        className={`
+                          ml-1 text-base font-semibold text-foreground
+
+                          hover:underline
+                        `}
+                      >
                         View Nearest Papers
                       </p>
                     </AccordionTrigger>
@@ -400,8 +409,7 @@ export function PaperDetail({
                                   <div>
                                     <span
                                       className={`
-                                        text-sm font-semibold
-                                        text-foreground
+                                        text-sm font-semibold text-foreground
                                       `}
                                     >
                                       Contradicting Evidence:

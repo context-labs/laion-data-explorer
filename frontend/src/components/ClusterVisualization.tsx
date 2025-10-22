@@ -9,6 +9,25 @@ import {
   getCameraForLayout,
 } from "../utils/layoutTransforms";
 
+interface SceneAnnotation {
+  x: number;
+  y: number;
+  z: number;
+  text: string;
+  showarrow: boolean;
+  font: {
+    size: number;
+    color: string;
+    family: string;
+  };
+  bgcolor: string;
+  bordercolor: string;
+  borderwidth: number;
+  borderpad: number;
+  xanchor: "left" | "center" | "right" | "auto";
+  yanchor: "top" | "middle" | "bottom" | "auto";
+}
+
 interface ClusterVisualizationProps {
   papers: PaperSummary[];
   clusters: ClusterInfo[];
@@ -26,7 +45,9 @@ export function ClusterVisualization({
 }: ClusterVisualizationProps) {
   const { isDarkTheme } = useTheme();
   const [plotData, setPlotData] = useState<Data[]>([]);
-  const [sceneAnnotations, setSceneAnnotations] = useState<any[]>([]);
+  const [sceneAnnotations, setSceneAnnotations] = useState<SceneAnnotation[]>(
+    [],
+  );
   const [isLoaded, setIsLoaded] = useState(false);
   const [cameraRevision, setCameraRevision] = useState(0);
   const [showAllLabels, setShowAllLabels] = useState(false);
@@ -211,7 +232,7 @@ export function ClusterVisualization({
       clusterMap.get(paper.cluster_id)?.push(paper);
     });
 
-    const annotations: any[] = [];
+    const annotations: SceneAnnotation[] = [];
 
     Array.from(clusterMap.entries()).forEach(
       ([clusterId, clusterPapers], clusterIndex) => {
@@ -450,7 +471,7 @@ export function ClusterVisualization({
       `}</style>
       <div
         className={`
-          hidden absolute top-2.5 right-2.5 z-10
+          absolute right-2.5 top-2.5 z-10 hidden
 
           lg:block
         `}

@@ -168,11 +168,11 @@ const ChartTooltipContent = React.forwardRef<
       }
 
       const [item] = payload;
-      const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`;
+      const key = `${labelKey ?? item.dataKey ?? item.name ?? "value"}`;
       const itemConfig = getPayloadConfigFromPayload(config, item, key);
       const value =
         !labelKey && typeof label === "string"
-          ? (config[label]?.label ?? label)
+          ? (config[label].label ?? label)
           : itemConfig?.label;
 
       if (labelFormatter) {
@@ -225,7 +225,7 @@ const ChartTooltipContent = React.forwardRef<
             const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
             const indicatorColor =
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+               
               color ?? (item.payload.fill as string | undefined) ?? item.color;
 
             return (

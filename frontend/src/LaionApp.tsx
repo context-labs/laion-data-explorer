@@ -434,6 +434,7 @@ export default function LaionApp() {
     if (clusters.length === 0) return;
     const randomIndex = Math.floor(Math.random() * clusters.length);
     const randomCluster = clusters[randomIndex];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (randomCluster) {
       setSelectedClusterIds(new Set([randomCluster.cluster_id]));
     }
@@ -443,6 +444,7 @@ export default function LaionApp() {
     if (papers.length === 0) return;
     const randomIndex = Math.floor(Math.random() * papers.length);
     const randomPaper = papers[randomIndex];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (randomPaper) {
       setSelectedPaperId(randomPaper.id);
     }

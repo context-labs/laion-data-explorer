@@ -144,7 +144,11 @@ export function PaperSampleViewer({ clusters }: PaperSampleViewerProps) {
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border p-4">
+      <div
+        className={`
+          flex items-center justify-between border-b border-border p-4
+        `}
+      >
         <div>
           <Row className="items-center gap-2">
             <h2 className="text-lg font-semibold">Paper Sample Viewer</h2>
@@ -187,7 +191,10 @@ export function PaperSampleViewer({ clusters }: PaperSampleViewerProps) {
               value={jumpToIndex}
               onChange={(e) => setJumpToIndex(e.target.value)}
               placeholder={`1-${sampleIds.length}`}
-              className="h-8 w-20 rounded-md border border-input bg-background px-2 text-sm"
+              className={`
+                h-8 w-20 rounded-md border border-input bg-background px-2
+                text-sm
+              `}
             />
             <Button type="submit" variant="outline" size="sm">
               Go
@@ -202,26 +209,47 @@ export function PaperSampleViewer({ clusters }: PaperSampleViewerProps) {
           <Skeleton className="h-96 w-full" />
         </div>
       ) : (
-        <div className="grid h-full grid-cols-1 overflow-hidden lg:grid-cols-2">
+        <div
+          className={`
+            grid h-full grid-cols-1 overflow-hidden
+
+            lg:grid-cols-2
+          `}
+        >
           {/* Left: Paper Sample */}
           <div className="flex flex-col overflow-hidden border-r border-border">
-            <div className="flex h-32 flex-shrink-0 flex-col border-b border-border bg-muted/50 p-4">
+            <div
+              className={`
+                flex h-32 flex-shrink-0 flex-col border-b border-border
+                bg-muted/50 p-4
+              `}
+            >
               <h3 className="mb-3 text-sm font-semibold">
                 Original Paper Sample
               </h3>
-              {currentSample.title && (
-                <div>
-                  <div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Extracted Title
-                  </div>
-                  <div className="line-clamp-2 text-xs font-medium text-foreground">
-                    {currentSample.title ?? "[No title extracted]"}
-                  </div>
+              <div>
+                <div
+                  className={`
+                    mb-1 text-xs font-medium uppercase tracking-wide
+                    text-muted-foreground
+                  `}
+                >
+                  Extracted Title
                 </div>
-              )}
+                <div
+                  className={`line-clamp-2 text-xs font-medium text-foreground`}
+                >
+                  {currentSample.title ?? "[No title extracted]"}
+                </div>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto p-4">
-              <pre className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
+              <pre
+                className={`
+                  whitespace-pre-wrap text-xs leading-relaxed
+                  text-muted-foreground
+                `}
+              >
                 {currentSample.sample}
               </pre>
             </div>
@@ -229,18 +257,31 @@ export function PaperSampleViewer({ clusters }: PaperSampleViewerProps) {
 
           {/* Right: Extracted JSON */}
           <div className="flex flex-col overflow-hidden">
-            <div className="flex h-32 flex-shrink-0 flex-col border-b border-border bg-muted/50 p-4">
+            <div
+              className={`
+                flex h-32 flex-shrink-0 flex-col border-b border-border
+                bg-muted/50 p-4
+              `}
+            >
               <h3 className="mb-3 text-sm font-semibold">
                 Extracted Data (JSON)
               </h3>
               <div className="flex flex-wrap gap-3">
                 {currentSample.cluster_label && (
                   <div>
-                    <div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <div
+                      className={`
+                        mb-1 text-xs font-medium uppercase tracking-wide
+                        text-muted-foreground
+                      `}
+                    >
                       Cluster
                     </div>
                     <div
-                      className="inline-flex items-center rounded-sm px-3 py-1 text-xs font-medium text-foreground"
+                      className={`
+                        inline-flex items-center rounded-sm px-3 py-1 text-xs
+                        font-medium text-foreground
+                      `}
                       style={{
                         border: `1px solid ${clusterBorderColor}`,
                       }}
@@ -251,7 +292,12 @@ export function PaperSampleViewer({ clusters }: PaperSampleViewerProps) {
                 )}
                 {currentSample.field_subfield && (
                   <div>
-                    <div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <div
+                      className={`
+                        mb-1 text-xs font-medium uppercase tracking-wide
+                        text-muted-foreground
+                      `}
+                    >
                       Field
                     </div>
                     <div className="py-1 text-xs font-medium text-foreground">

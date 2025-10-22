@@ -217,6 +217,7 @@ export function TemporalHeatmap({
 
         const firstYear = data[0];
         const lastYear = data[data.length - 1];
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (!firstYear || !lastYear || firstYear.count === 0)
           return { label: cluster.cluster_label, rate: 0 };
 
@@ -433,6 +434,7 @@ export function TemporalHeatmap({
               const year = point.x;
               const clusterIndex = point.y;
               const clusterId = clusterIds[clusterIndex];
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               if (clusterId !== undefined) {
                 onPaperClick(clusterId, year);
               }

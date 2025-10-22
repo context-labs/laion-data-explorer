@@ -56,14 +56,18 @@ export function LearnMoreSheet({
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent
-        className="w-full overflow-y-auto sm:max-w-5xl h-full flex flex-col"
+        className={`
+          flex h-full w-full flex-col overflow-y-auto
+
+          sm:max-w-5xl
+        `}
         side="right"
       >
         <SheetHeader className="flex-shrink-0">
           <SheetTitle>About This Project</SheetTitle>
         </SheetHeader>
         <div className="flex-1 overflow-y-auto pb-6">
-          <Col className="gap-2 mt-6">
+          <Col className="mt-6 gap-2">
             <LearnMoreLinks />
             <p className="text-base text-muted-foreground">
               We fine-tuned a 14B Qwen model to specialize in the task of
@@ -80,7 +84,7 @@ export function LearnMoreSheet({
             <img
               src={isDarkTheme ? BenchmarksDarkImage : BenchmarksLightImage}
               alt="Model Benchmarks"
-              className="w-full my-4 rounded-lg border"
+              className="my-4 w-full rounded-lg border"
             />
             <h2 className="mt-6">Structured Extraction Schema</h2>
             <p className="text-base text-muted-foreground">
@@ -96,7 +100,7 @@ export function LearnMoreSheet({
               customStyle={{ fontSize: "1rem" }}
             />
           </Col>
-          <Col className="gap-2 mt-12">
+          <Col className="mt-12 gap-2">
             <h2>Dataset Exploration</h2>
             <b>Embeddings</b>
             <p className="text-base text-muted-foreground">
@@ -105,7 +109,11 @@ export function LearnMoreSheet({
                 href="https://huggingface.co/allenai/specter2_base"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline hover:text-foreground"
+                className={`
+                  underline
+
+                  hover:text-foreground
+                `}
               >
                 SPECTER2
               </a>
@@ -134,7 +142,11 @@ export function LearnMoreSheet({
                 onEmailCTAClick();
                 onClose();
               }}
-              className="w-full sm:w-auto"
+              className={`
+                w-full
+
+                sm:w-auto
+              `}
             >
               Interested in the full dataset?
             </Button>
@@ -147,7 +159,11 @@ export function LearnMoreSheet({
                   "noopener,noreferrer",
                 )
               }
-              className="w-full sm:w-auto"
+              className={`
+                w-full
+
+                sm:w-auto
+              `}
             >
               <GithubIcon className="mr-2 h-4 w-4" />
               GitHub

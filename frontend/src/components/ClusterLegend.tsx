@@ -77,7 +77,11 @@ export function ClusterLegend({
             `}
           >
             Search Papers
-            <ChevronLeftIcon className="ml-2 hidden h-4 w-4 lg:block" />
+            <ChevronLeftIcon className={`
+              ml-2 hidden h-4 w-4
+
+              lg:block
+            `} />
           </h3>
           <form
             onSubmit={onPaperSearchSubmit}
