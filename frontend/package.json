@@ -10,10 +10,10 @@
     "build": "tsc && vite build",
     "build:production": "tsc && vite build --mode production",
     "preview": "vite preview",
-    "format": "prettier --check .",
-    "format:fix": "prettier --write .",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
+    "format": "biome check --write .",
+    "format:check": "biome check .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
     "tsc": "tsc --noEmit",
     "deploy": "bun run build:production && bunx wrangler pages deploy dist --project-name=laion-dataset-explorer-frontend",
     "upload:db:cloudflare": "bunx wrangler d1 execute laion-data-exploration --remote --file=./data/db_cloudflare.sql"
@@ -59,6 +59,7 @@
     "usehooks-ts": "2.16.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.6",
     "@types/invariant": "2.2.37",
     "@types/pako": "2.0.3",
     "@types/plotly.js": "2.29.3",

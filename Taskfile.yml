@@ -47,6 +47,38 @@ tasks:
         cd backend;
         uv run pywrangler tail --format=pretty
 
+  backend:format:
+    desc: Format backend code with Ruff
+    cmds:
+      - |
+        echo "==> Formatting backend code";
+        cd backend;
+        uv run ruff format
+
+  backend:format:check:
+    desc: Check backend code formatting
+    cmds:
+      - |
+        echo "==> Checking backend formatting";
+        cd backend;
+        uv run ruff format --check
+
+  backend:lint:
+    desc: Lint backend code with Ruff
+    cmds:
+      - |
+        echo "==> Linting backend code";
+        cd backend;
+        uv run ruff check
+
+  backend:lint:fix:
+    desc: Lint and fix backend code
+    cmds:
+      - |
+        echo "==> Linting and fixing backend code";
+        cd backend;
+        uv run ruff check --fix
+
   frontend:setup:
     desc: Install frontend dependencies
     cmds:
@@ -70,6 +102,62 @@ tasks:
         echo "==> Deploying frontend";
         cd frontend;
         bun run deploy
+
+  frontend:format:
+    desc: Format frontend code with Biome
+    cmds:
+      - |
+        echo "==> Formatting frontend code";
+        cd frontend;
+        bun run format
+
+  frontend:format:check:
+    desc: Check frontend code formatting
+    cmds:
+      - |
+        echo "==> Checking frontend formatting";
+        cd frontend;
+        bun run format:check
+
+  frontend:lint:
+    desc: Lint frontend code with Biome
+    cmds:
+      - |
+        echo "==> Linting frontend code";
+        cd frontend;
+        bun run lint
+
+  frontend:lint:fix:
+    desc: Lint and fix frontend code
+    cmds:
+      - |
+        echo "==> Linting and fixing frontend code";
+        cd frontend;
+        bun run lint:fix
+
+  format:
+    desc: Format both frontend and backend code
+    cmds:
+      - task backend:format
+      - task frontend:format
+
+  format:check:
+    desc: Check formatting for both frontend and backend
+    cmds:
+      - task backend:format:check
+      - task frontend:format:check
+
+  lint:
+    desc: Lint both frontend and backend code
+    cmds:
+      - task backend:lint
+      - task frontend:lint
+
+  lint:fix:
+    desc: Lint and fix both frontend and backend code
+    cmds:
+      - task backend:lint:fix
+      - task frontend:lint:fix
 
   setup:
     desc: Setup tasks
