@@ -1,6 +1,5 @@
-import React from "react";
-
 import { cn } from "~/ui/lib/utils";
+import React from "react";
 
 type CenteredProps = React.HtmlHTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode;

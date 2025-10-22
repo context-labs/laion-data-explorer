@@ -1,7 +1,6 @@
-import type React from "react";
-
 import { Col } from "~/ui/components/custom/Col";
 import { cn } from "~/ui/lib/utils";
+import type React from "react";
 
 type TooltipContentComponentProps = {
   content: React.ReactNode | string[];

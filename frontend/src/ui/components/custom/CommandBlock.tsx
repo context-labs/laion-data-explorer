@@ -1,12 +1,11 @@
-import React from "react";
-import { CopyIcon } from "lucide-react";
-import { useCopyToClipboard } from "usehooks-ts";
-
 import { Col } from "~/ui/components/custom/Col";
 import { Row } from "~/ui/components/custom/Row";
 import { Button } from "~/ui/components/ui/Button";
 import { Tooltip } from "~/ui/components/ui/Tooltip";
 import { toast } from "~/ui/hooks/useToast.hook";
+import { CopyIcon } from "lucide-react";
+import React from "react";
+import { useCopyToClipboard } from "usehooks-ts";
 
 type CommandBlockProps = React.HTMLAttributes<HTMLDivElement> & {
   cmd: string;

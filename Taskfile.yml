@@ -104,7 +104,7 @@ tasks:
         bun run deploy
 
   frontend:format:
-    desc: Format frontend code with Biome
+    desc: Format frontend code with Prettier
     cmds:
       - |
         echo "==> Formatting frontend code";
@@ -112,28 +112,20 @@ tasks:
         bun run format
 
   frontend:format:check:
-    desc: Check frontend code formatting
+    desc: Check frontend code formatting with Prettier
     cmds:
       - |
         echo "==> Checking frontend formatting";
         cd frontend;
         bun run format:check
 
-  frontend:lint:
-    desc: Lint frontend code with Biome
+  frontend:tsc:
+    desc: Check frontend code with TypeScript
     cmds:
       - |
-        echo "==> Linting frontend code";
+        echo "==> Checking frontend code with TypeScript";
         cd frontend;
-        bun run lint
-
-  frontend:lint:fix:
-    desc: Lint and fix frontend code
-    cmds:
-      - |
-        echo "==> Linting and fixing frontend code";
-        cd frontend;
-        bun run lint:fix
+        bun run tsc
 
   format:
     desc: Format both frontend and backend code
@@ -148,16 +140,14 @@ tasks:
       - task frontend:format:check
 
   lint:
-    desc: Lint both frontend and backend code
+    desc: Lint backend code with Ruff
     cmds:
       - task backend:lint
-      - task frontend:lint
 
   lint:fix:
-    desc: Lint and fix both frontend and backend code
+    desc: Lint and fix backend code with Ruff
     cmds:
       - task backend:lint:fix
-      - task frontend:lint:fix
 
   setup:
     desc: Setup tasks
@@ -169,6 +159,13 @@ tasks:
     desc: Show Cloudflare account and user info
     cmds:
       - wrangler whoami
+
+  check:
+    desc: Check formatting and linting
+    cmds:
+      - task format:check
+      - task lint
+      - task frontend:tsc
 
   deploy:
     desc: Deploy API and/or frontend with prompts

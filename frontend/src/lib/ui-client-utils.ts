@@ -19,7 +19,7 @@ export function createLocalStorage(): Storage {
         delete mockStorage[key];
       },
       clear: () => {
-        Object.keys(mockStorage).forEach(key => delete mockStorage[key]);
+        Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
       },
       key: (index: number) => Object.keys(mockStorage)[index] ?? null,
       length: Object.keys(mockStorage).length,
@@ -36,7 +36,8 @@ export function isTypingInputElementFocused(): boolean {
 
   const tagName = activeElement.tagName.toLowerCase();
   const isInput = tagName === "input" || tagName === "textarea";
-  const isContentEditable = activeElement.getAttribute("contenteditable") === "true";
+  const isContentEditable =
+    activeElement.getAttribute("contenteditable") === "true";
 
   return isInput || isContentEditable;
 }

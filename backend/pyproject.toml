@@ -4,20 +4,13 @@ version = "1.0.0"
 description = "LAION Paper Visualizer API - Python Worker for Cloudflare"
 requires-python = ">=3.11"
 
-dependencies = [
-    "fastapi>=0.110.0",
-    "pydantic>=2.6.0",
-    "webtypy>=0.1.7",
-]
+dependencies = ["fastapi>=0.110.0", "pydantic>=2.6.0", "webtypy>=0.1.7"]
 
 [dependency-groups]
-dev = [
-    "ruff>=0.14.1",
-    "workers-py",
-]
+dev = ["ruff>=0.14.1", "workers-py"]
 
 [tool.ruff]
-line-length = 100
+line-length = 200
 target-version = "py311"
 
 [tool.ruff.lint]
@@ -37,4 +30,3 @@ ignore = []
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
-

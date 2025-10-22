@@ -1,8 +1,7 @@
-import * as React from "react";
-import * as RechartsPrimitive from "recharts";
-
 import { useBreakpoints } from "~/ui/hooks/useBreakpoints.hook";
 import { cn } from "~/ui/lib/utils";
+import * as React from "react";
+import * as RechartsPrimitive from "recharts";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { dark: ".dark", light: "" } as const;

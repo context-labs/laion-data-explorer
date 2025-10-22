@@ -1,7 +1,6 @@
-import { useCallback, useEffect } from "react";
-
 import { isTypingInputElementFocused } from "~/lib/ui-client-utils";
 import { useTheme } from "~/ui";
+import { useCallback, useEffect } from "react";
 
 const HOT_KEY_MAP = {
   TOGGLE_THEME: "t",

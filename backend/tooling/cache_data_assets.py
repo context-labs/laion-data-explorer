@@ -7,7 +7,6 @@ to the frontend, bypassing the API.
 """
 
 import gzip
-import json
 import sys
 from pathlib import Path
 
@@ -46,14 +45,14 @@ def cache_papers() -> bool:
         output_path.write_bytes(compressed_content)
 
         print(f"✓ Saved {compressed_size:,} bytes to {output_path}")
-        print(f"  (Data is already compressed by the API)")
+        print("  (Data is already compressed by the API)")
 
         return True
 
     except requests.exceptions.RequestException as e:
         print(f"✗ Error fetching papers: {e}", file=sys.stderr)
         return False
-    except IOError as e:
+    except OSError as e:
         print(f"✗ Error writing papers cache: {e}", file=sys.stderr)
         return False
 
@@ -75,10 +74,10 @@ def cache_clusters() -> bool:
 
         # Get JSON content
         json_content = response.text
-        uncompressed_size = len(json_content.encode('utf-8'))
+        uncompressed_size = len(json_content.encode("utf-8"))
 
         # Compress the JSON
-        compressed_content = gzip.compress(json_content.encode('utf-8'), compresslevel=6)
+        compressed_content = gzip.compress(json_content.encode("utf-8"), compresslevel=6)
         compressed_size = len(compressed_content)
         compression_ratio = (compressed_size / uncompressed_size) * 100
 
@@ -94,7 +93,7 @@ def cache_clusters() -> bool:
     except requests.exceptions.RequestException as e:
         print(f"✗ Error fetching clusters: {e}", file=sys.stderr)
         return False
-    except IOError as e:
+    except OSError as e:
         print(f"✗ Error writing clusters cache: {e}", file=sys.stderr)
         return False
 
@@ -119,7 +118,7 @@ def main():
     if success_papers and success_clusters:
         print("✓ All cache files generated successfully!")
         print("\nGenerated files:")
-        for key, path in OUTPUT_FILES.items():
+        for _key, path in OUTPUT_FILES.items():
             if path.exists():
                 size = path.stat().st_size
                 print(f"  - {path.name}: {size:,} bytes")

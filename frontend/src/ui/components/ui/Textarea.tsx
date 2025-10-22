@@ -1,6 +1,5 @@
-import * as React from "react";
-
 import { cn } from "~/ui/lib/utils";
+import * as React from "react";
 
 export type TextareaProps = React.ComponentProps<"textarea"> & {
   error?: string | null;

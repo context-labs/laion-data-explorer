@@ -1,6 +1,5 @@
 import { atom } from "jotai";
 import { atomFamily } from "jotai/utils";
-
 import type { ClusterInfo, ClusterTemporalData } from "../types";
 
 // Cache for cluster distribution data

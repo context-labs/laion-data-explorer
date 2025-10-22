@@ -1,10 +1,9 @@
-import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
-
 import type { ButtonVariantProp } from "~/ui/components/ui/Button";
 import { Button } from "~/ui/components/ui/Button";
 import { cn } from "~/ui/lib/utils";
+import { X } from "lucide-react";
+import * as React from "react";
 
 const DialogRoot = DialogPrimitive.Root;
 

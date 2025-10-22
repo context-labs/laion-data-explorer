@@ -1,8 +1,6 @@
-import { useState } from "react";
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "lucide-react";
-
 import { Button, Input } from "~/ui";
-
+import { ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "lucide-react";
+import { useState } from "react";
 import type { ClusterInfo } from "../types";
 
 interface ClusterLegendProps {

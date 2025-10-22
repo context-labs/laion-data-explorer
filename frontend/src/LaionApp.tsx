@@ -1,4 +1,25 @@
-import { useEffect, useState } from "react";
+import { useSwipeRightDetector } from "~/lib/ui-shared";
+import {
+  Button,
+  Card,
+  Centered,
+  cn,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+  InferenceIcon,
+  Row,
+  Select,
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  Skeleton,
+  Slider,
+  ThemeToggle,
+} from "~/ui";
 import {
   AtomIcon,
   BarChart3Icon,
@@ -12,42 +33,7 @@ import {
   PlusIcon,
   SunMoonIcon,
 } from "lucide-react";
-
-import {
-  Button,
-  Card,
-  Centered,
-  cn,
-  DialogRoot,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Row,
-  Select,
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  Skeleton,
-  Slider,
-  ThemeToggle,
-  InferenceIcon,
-} from "~/ui";
-import { useSwipeRightDetector } from "~/lib/ui-shared";
-
-import type { HeatmapSortOption } from "./components/TemporalHeatmap";
-import type {
-  StackedSortOption,
-  StackMode,
-} from "./components/TemporalStackedChart";
-import type {
-  ClusterInfo,
-  ClustersResponse,
-  PapersResponse,
-  PaperSummary,
-} from "./types";
-import type { LayoutType } from "./utils/layoutTransforms";
+import { useEffect, useState } from "react";
 import LaionDarkLogo from "./assets/logos/Laion-dark.svg";
 import LaionLightLogo from "./assets/logos/Laion-light.svg";
 import { ClusterLegend } from "./components/ClusterLegend";
@@ -56,9 +42,21 @@ import { DistributionChart } from "./components/DistributionChart";
 import { LearnMoreContent } from "./components/LearnMoreContent";
 import { LearnMoreSheet } from "./components/LearnMoreSheet";
 import { PaperDetail } from "./components/PaperDetail";
+import type { HeatmapSortOption } from "./components/TemporalHeatmap";
 import { TemporalHeatmap } from "./components/TemporalHeatmap";
+import type {
+  StackedSortOption,
+  StackMode,
+} from "./components/TemporalStackedChart";
 import { TemporalStackedChart } from "./components/TemporalStackedChart";
+import type {
+  ClusterInfo,
+  ClustersResponse,
+  PapersResponse,
+  PaperSummary,
+} from "./types";
 import { fetchCompressed, getApiUrl } from "./utils/api";
+import type { LayoutType } from "./utils/layoutTransforms";
 
 type SwipeableSheetContentProps = {
   children: React.ReactNode;
@@ -82,7 +80,7 @@ function SwipeableSheetContent({
 
           sm:w-[350px]
         `,
-        className
+        className,
       )}
       closeButtonAriaLabel="Close Mobile Navigation Menu"
       onTouchEnd={onTouchEnd}
@@ -258,7 +256,7 @@ export default function LaionApp() {
   const [clusters, setClusters] = useState<ClusterInfo[]>([]);
   const [selectedPaperId, setSelectedPaperId] = useState<number | null>(null);
   const [selectedClusterIds, setSelectedClusterIds] = useState<Set<number>>(
-    new Set()
+    new Set(),
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -326,7 +324,7 @@ export default function LaionApp() {
           setAllPapers(papersData.papers);
           setClusters(clustersData.clusters);
           setLoading(false);
-        }
+        },
       )
       .catch((err: Error) => {
         console.error("Error fetching papers and clusters", err);
@@ -365,7 +363,7 @@ export default function LaionApp() {
     }
 
     fetchCompressed<PapersResponse>(
-      getApiUrl(`/api/search?q=${encodeURIComponent(searchQuery)}`)
+      getApiUrl(`/api/search?q=${encodeURIComponent(searchQuery)}`),
     )
       .then((data) => setAllPapers(data.papers))
       .catch((err: Error) => setError(err.message));
@@ -410,7 +408,7 @@ export default function LaionApp() {
   const handleHeatmapClick = (clusterId: number, year: number) => {
     // Filter papers by cluster and year, then show the first one
     const filteredPapers = papers.filter(
-      (p) => p.cluster_id === clusterId && p.publication_year === year
+      (p) => p.cluster_id === clusterId && p.publication_year === year,
     );
     if (filteredPapers.length > 0 && filteredPapers[0]) {
       setSelectedPaperId(filteredPapers[0].id);

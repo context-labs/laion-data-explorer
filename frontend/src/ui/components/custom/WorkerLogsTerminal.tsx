@@ -1,11 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowDown } from "lucide-react";
-
 import type { LogMessage } from "~/lib/models";
 import { LogLevel } from "~/lib/models";
-
 import { Col } from "~/ui/components/custom/Col";
 import { Button } from "~/ui/components/ui/Button";
+import { ArrowDown } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 type WorkerLogsTerminalProps = {
   logs: LogMessage[];

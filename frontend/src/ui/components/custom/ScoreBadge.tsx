@@ -1,5 +1,4 @@
 import { CheckCircleIcon, SquareActivityIcon } from "lucide-react";
-
 import { cn } from "../../lib/utils";
 import { Badge } from "../ui/Badge";
 

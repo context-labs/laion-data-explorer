@@ -1,0 +1,10 @@
+**/build
+**/public
+**/dist
+**/.output
+**/.vercel
+**/.vinxi
+.DS_Store
+**/inter.css
+**/jetbrains.css
+**/helmfile.yaml

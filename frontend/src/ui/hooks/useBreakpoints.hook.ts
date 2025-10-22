@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-
 import { useHasMounted } from "~/ui/hooks/useHasMounted.hook";
+import { useEffect, useState } from "react";
 
 type BreakpointContext = {
   breakpoint: Breakpoint;

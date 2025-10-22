@@ -38,11 +38,9 @@ def initialize_cache_tables():
     print("  Cache table ready")
 
 
-
-
 def get_cluster_color(cluster_id: int) -> str:
     """Get consistent color for a cluster (copied from main.py)."""
-    CLUSTER_COLORS = [
+    cluster_colors = [
         "#1f77b4",
         "#ff7f0e",
         "#2ca02c",
@@ -76,7 +74,7 @@ def get_cluster_color(cluster_id: int) -> str:
     ]
     if cluster_id < 0:
         return "#E8E8E8"  # Light gray pastel for unclustered
-    return CLUSTER_COLORS[cluster_id % len(CLUSTER_COLORS)]
+    return cluster_colors[cluster_id % len(cluster_colors)]
 
 
 def generate_clusters_cache():
@@ -136,7 +134,7 @@ def generate_clusters_cache():
 
     print(f"  Total: {total_time:.3f}s")
     print(f"  Size: {size:,} bytes")
-    print(f"  Saved to: cache_clusters table")
+    print("  Saved to: cache_clusters table")
 
     conn.close()
 

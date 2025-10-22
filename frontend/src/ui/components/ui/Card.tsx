@@ -1,7 +1,6 @@
-import * as React from "react";
-
 import { Button } from "~/ui/components/ui/Button";
 import { cn } from "~/ui/lib/utils";
+import * as React from "react";
 
 const Card = React.forwardRef<
   HTMLDivElement,

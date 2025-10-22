@@ -1,12 +1,10 @@
+import { useTheme } from "~/ui";
+import { useAtom } from "jotai";
 import type { Data, Layout, PlotMouseEvent } from "plotly.js";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useAtom } from "jotai";
 import Plot from "react-plotly.js";
-
-import { useTheme } from "~/ui";
-
-import type { ClusterInfo, ClustersResponse } from "../types";
 import { clustersDataAtom } from "../state/chartDataCache";
+import type { ClusterInfo, ClustersResponse } from "../types";
 import { getApiUrl } from "../utils/api";
 
 export function DistributionChart({

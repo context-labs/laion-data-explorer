@@ -20,7 +20,6 @@ import json
 import pickle
 import sqlite3
 from pathlib import Path
-from typing import List, Optional
 
 import numpy as np
 import torch
@@ -28,7 +27,7 @@ from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
 
 
-def get_paper_text(sample: str, summarization: str) -> Optional[str]:
+def get_paper_text(sample: str, summarization: str) -> str | None:
     """
     Extract meaningful text from a paper record for embedding.
 
@@ -75,12 +74,12 @@ def get_paper_text(sample: str, summarization: str) -> Optional[str]:
     # If we didn't get anything from summarization, try sample
     if not text_parts and sample and sample.strip():
         # Try to extract title and abstract from sample
-        lines = sample.split('\n')
-        for i, line in enumerate(lines):
-            if line.startswith('title:'):
+        lines = sample.split("\n")
+        for line in lines:
+            if line.startswith("title:"):
                 title = line[6:].strip()
                 text_parts.append(f"Title: {title}")
-            elif line.startswith('abstract:'):
+            elif line.startswith("abstract:"):
                 abstract = line[9:].strip()
                 text_parts.append(f"Abstract: {abstract}")
 
@@ -90,13 +89,7 @@ def get_paper_text(sample: str, summarization: str) -> Optional[str]:
     return None
 
 
-def generate_embeddings(
-    texts: List[str],
-    model,
-    tokenizer,
-    device: str = "cpu",
-    max_length: int = 512
-) -> np.ndarray:
+def generate_embeddings(texts: list[str], model, tokenizer, device: str = "cpu", max_length: int = 512) -> np.ndarray:
     """
     Generate embeddings using SPECTER2.
 
@@ -111,13 +104,7 @@ def generate_embeddings(
         Numpy array of embeddings (batch_size x embedding_dim)
     """
     # Tokenize texts
-    inputs = tokenizer(
-        texts,
-        padding=True,
-        truncation=True,
-        max_length=max_length,
-        return_tensors="pt"
-    ).to(device)
+    inputs = tokenizer(texts, padding=True, truncation=True, max_length=max_length, return_tensors="pt").to(device)
 
     # Generate embeddings
     with torch.no_grad():
@@ -153,9 +140,9 @@ def add_embeddings_column(db_path: str) -> None:
 def embed_database(
     db_path: str,
     batch_size: int = 32,
-    device: Optional[str] = None,
+    device: str | None = None,
     resume: bool = False,
-    commit_interval: int = 200
+    commit_interval: int = 200,
 ) -> None:
     """
     Generate and store embeddings for all papers in the database.
@@ -242,20 +229,12 @@ def embed_database(
 
             # Process batch when it's full
             if len(batch_texts) >= batch_size:
-                embeddings = generate_embeddings(
-                    batch_texts,
-                    model,
-                    tokenizer,
-                    device=device
-                )
+                embeddings = generate_embeddings(batch_texts, model, tokenizer, device=device)
 
                 # Store embeddings
                 for idx, paper_id in enumerate(batch_ids):
                     embedding_bytes = embeddings[idx].tobytes()
-                    cursor.execute(
-                        "UPDATE papers SET embedding = ? WHERE id = ?",
-                        (embedding_bytes, paper_id)
-                    )
+                    cursor.execute("UPDATE papers SET embedding = ? WHERE id = ?", (embedding_bytes, paper_id))
 
                 papers_since_commit += len(batch_texts)
                 processed += len(batch_texts)
@@ -267,12 +246,15 @@ def embed_database(
                     papers_since_commit = 0
 
                     # Save checkpoint
-                    with open(checkpoint_path, 'wb') as f:
-                        pickle.dump({
-                            'processed': processed + already_embedded,
-                            'skipped': skipped,
-                            'total': total_count
-                        }, f)
+                    with open(checkpoint_path, "wb") as f:
+                        pickle.dump(
+                            {
+                                "processed": processed + already_embedded,
+                                "skipped": skipped,
+                                "total": total_count,
+                            },
+                            f,
+                        )
 
                 # Clear batch
                 batch_ids = []
@@ -280,19 +262,11 @@ def embed_database(
 
         # Process remaining items
         if batch_texts:
-            embeddings = generate_embeddings(
-                batch_texts,
-                model,
-                tokenizer,
-                device=device
-            )
+            embeddings = generate_embeddings(batch_texts, model, tokenizer, device=device)
 
             for idx, paper_id in enumerate(batch_ids):
                 embedding_bytes = embeddings[idx].tobytes()
-                cursor.execute(
-                    "UPDATE papers SET embedding = ? WHERE id = ?",
-                    (embedding_bytes, paper_id)
-                )
+                cursor.execute("UPDATE papers SET embedding = ? WHERE id = ?", (embedding_bytes, paper_id))
 
             processed += len(batch_texts)
             pbar.update(len(batch_texts))
@@ -306,43 +280,37 @@ def embed_database(
     if checkpoint_path.exists():
         checkpoint_path.unlink()
 
-    print(f"\nComplete!")
+    print("\nComplete!")
     print(f"  Processed: {processed}")
     print(f"  Skipped: {skipped}")
     print(f"  Total: {total_count}")
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate SPECTER2 embeddings for papers in the database"
-    )
-    parser.add_argument(
-        "--db",
-        default="data/db.sqlite",
-        help="Path to SQLite database (default: data/db.sqlite)"
-    )
+    parser = argparse.ArgumentParser(description="Generate SPECTER2 embeddings for papers in the database")
+    parser.add_argument("--db", default="data/db.sqlite", help="Path to SQLite database (default: data/db.sqlite)")
     parser.add_argument(
         "--batch-size",
         type=int,
         default=32,
-        help="Batch size for embedding generation (default: 32, use 64 for GPU)"
+        help="Batch size for embedding generation (default: 32, use 64 for GPU)",
     )
     parser.add_argument(
         "--device",
         choices=["cpu", "cuda"],
         default=None,
-        help="Device to run on (default: auto-detect)"
+        help="Device to run on (default: auto-detect)",
     )
     parser.add_argument(
         "--resume",
         action="store_true",
-        help="Skip papers that already have embeddings (useful for resuming interrupted runs)"
+        help="Skip papers that already have embeddings (useful for resuming interrupted runs)",
     )
     parser.add_argument(
         "--commit-interval",
         type=int,
         default=200,
-        help="Number of papers to process before committing to database (default: 200)"
+        help="Number of papers to process before committing to database (default: 200)",
     )
 
     args = parser.parse_args()
@@ -361,7 +329,7 @@ def main():
         batch_size=args.batch_size,
         device=args.device,
         resume=args.resume,
-        commit_interval=args.commit_interval
+        commit_interval=args.commit_interval,
     )
 
     return 0

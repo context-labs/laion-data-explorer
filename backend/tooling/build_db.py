@@ -13,12 +13,11 @@ import argparse
 import json
 import sqlite3
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 
 
-def create_db(parquet_path: str, db_path: str, num_rows: Optional[int] = None) -> None:
+def create_db(parquet_path: str, db_path: str, num_rows: int | None = None) -> None:
     """
     Create a SQLite database from a parquet file.
 
@@ -40,7 +39,7 @@ def create_db(parquet_path: str, db_path: str, num_rows: Optional[int] = None) -
     initial_count = len(df)
 
     # Remove rows where summarization is null/empty
-    df = df[df['summarization'].notna()]
+    df = df[df["summarization"].notna()]
     print(f"  Removed {initial_count - len(df)} rows with null summarization")
 
     # Parse summarization and filter NON_SCIENTIFIC_TEXT
@@ -50,13 +49,13 @@ def create_db(parquet_path: str, db_path: str, num_rows: Optional[int] = None) -
             return False
         try:
             data = json.loads(summarization_str)
-            classification = data.get('article_classification', '')
+            classification = data.get("article_classification", "")
             # Only include SCIENTIFIC_TEXT and PARTIAL_SCIENTIFIC_TEXT
-            return classification in ['SCIENTIFIC_TEXT', 'PARTIAL_SCIENTIFIC_TEXT']
+            return classification in ["SCIENTIFIC_TEXT", "PARTIAL_SCIENTIFIC_TEXT"]
         except (json.JSONDecodeError, TypeError):
             return False
 
-    mask = df['summarization'].apply(should_include_paper)
+    mask = df["summarization"].apply(should_include_paper)
     filtered_count = len(df) - mask.sum()
     df = df[mask]
     print(f"  Removed {filtered_count} rows that failed to summarize or were NON_SCIENTIFIC_TEXT")
@@ -67,7 +66,7 @@ def create_db(parquet_path: str, db_path: str, num_rows: Optional[int] = None) -
         """Extract a field from the summarization JSON."""
         try:
             data = json.loads(summarization_str)
-            summary = data.get('summary', {})
+            summary = data.get("summary", {})
             if summary:
                 return summary.get(field_name)
         except (json.JSONDecodeError, TypeError):
@@ -75,29 +74,29 @@ def create_db(parquet_path: str, db_path: str, num_rows: Optional[int] = None) -
         return None
 
     print("  Extracting title, publication_year, field_subfield, and classification...")
-    df['title'] = df['summarization'].apply(lambda x: extract_field(x, 'title'))
-    df['publication_year'] = df['summarization'].apply(lambda x: extract_field(x, 'publication_year'))
-    df['field_subfield'] = df['summarization'].apply(lambda x: extract_field(x, 'field_subfield'))
+    df["title"] = df["summarization"].apply(lambda x: extract_field(x, "title"))
+    df["publication_year"] = df["summarization"].apply(lambda x: extract_field(x, "publication_year"))
+    df["field_subfield"] = df["summarization"].apply(lambda x: extract_field(x, "field_subfield"))
 
     # Extract and map classification
     def extract_classification(summarization_str):
         """Extract classification and map to simplified labels."""
         try:
             data = json.loads(summarization_str)
-            classification = data.get('article_classification', '')
-            if classification == 'SCIENTIFIC_TEXT':
-                return 'FULL_TEXT'
-            elif classification == 'PARTIAL_SCIENTIFIC_TEXT':
-                return 'PARTIAL_TEXT'
+            classification = data.get("article_classification", "")
+            if classification == "SCIENTIFIC_TEXT":
+                return "FULL_TEXT"
+            elif classification == "PARTIAL_SCIENTIFIC_TEXT":
+                return "PARTIAL_TEXT"
         except (json.JSONDecodeError, TypeError):
             pass
         return None
 
-    df['classification'] = df['summarization'].apply(extract_classification)
+    df["classification"] = df["summarization"].apply(extract_classification)
 
     # Remove the error column if it exists
-    if 'error' in df.columns:
-        df = df.drop(columns=['error'])
+    if "error" in df.columns:
+        df = df.drop(columns=["error"])
         print("  Removed error column")
 
     # Create/connect to database
@@ -107,7 +106,7 @@ def create_db(parquet_path: str, db_path: str, num_rows: Optional[int] = None) -
     try:
         # Write dataframe to SQLite
         # if_exists='replace' will drop and recreate the table if it exists
-        df.to_sql('papers', conn, if_exists='replace', index=True, index_label='id')
+        df.to_sql("papers", conn, if_exists="replace", index=True, index_label="id")
 
         print(f"Successfully created 'papers' table with {len(df)} rows")
 
@@ -135,24 +134,22 @@ def create_db(parquet_path: str, db_path: str, num_rows: Optional[int] = None) -
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Build SQLite database from parquet file"
-    )
+    parser = argparse.ArgumentParser(description="Build SQLite database from parquet file")
     parser.add_argument(
         "--input",
         default="data/full.parquet",
-        help="Input parquet file path (default: data/full.parquet)"
+        help="Input parquet file path (default: data/full.parquet)",
     )
     parser.add_argument(
         "--output",
         default="data/db.sqlite",
-        help="Output SQLite database path (default: data/db.sqlite)"
+        help="Output SQLite database path (default: data/db.sqlite)",
     )
     parser.add_argument(
         "--num-rows",
         type=int,
         default=None,
-        help="Limit number of rows to read from parquet (default: read all rows)"
+        help="Limit number of rows to read from parquet (default: read all rows)",
     )
 
     args = parser.parse_args()

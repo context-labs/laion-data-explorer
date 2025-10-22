@@ -1,9 +1,8 @@
-import React, { forwardRef } from "react";
-import { CopyIcon } from "lucide-react";
-import { useCopyToClipboard } from "usehooks-ts";
-
 import { toast } from "~/ui/hooks/useToast.hook";
 import { cn } from "~/ui/lib/utils";
+import { CopyIcon } from "lucide-react";
+import React, { forwardRef } from "react";
+import { useCopyToClipboard } from "usehooks-ts";
 
 type CodeProps = React.HTMLAttributes<HTMLElement> & {
   disableCopyToClipboard?: boolean;

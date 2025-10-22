@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-import { SearchIcon } from "lucide-react";
-
 import { Row } from "~/ui/components/custom/Row";
 import { Input } from "~/ui/components/ui/Input";
 import { cn } from "~/ui/lib/utils";
+import { SearchIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type SearchInputProps = {
   className?: string;

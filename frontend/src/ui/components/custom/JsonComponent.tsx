@@ -1,7 +1,6 @@
 import JsonView from "@uiw/react-json-view";
 import { lightTheme } from "@uiw/react-json-view/light";
 import { vscodeTheme } from "@uiw/react-json-view/vscode";
-
 import { useTheme } from "~/ui/providers/ThemeProvider";
 
 type JsonComponentProps = {

@@ -6,8 +6,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "~/ui";
-import { LearnMoreLinks } from "./LearnMoreContent";
 import BenchmarksImage from "../assets/benchmarks.png";
+import { LearnMoreLinks } from "./LearnMoreContent";
 
 const SCHEMA_CODE = `interface ScientificSummary {
   title: string;

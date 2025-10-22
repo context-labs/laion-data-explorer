@@ -1,7 +1,6 @@
-import React from "react";
-
 import { Col } from "~/ui/components/custom/Col";
 import { cn } from "~/ui/lib/utils";
+import React from "react";
 
 type ResponsiveRowProps = React.HtmlHTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode;

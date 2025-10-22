@@ -1,13 +1,3 @@
-import type { ClassNameValue } from "tailwind-merge";
-import { useCallback, useState } from "react";
-import { Copy } from "lucide-react";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import {
-  a11yLight,
-  atomOneDark,
-} from "react-syntax-highlighter/dist/esm/styles/hljs";
-import { useCopyToClipboard } from "usehooks-ts";
-
 import { Row } from "~/ui/components/custom/Row";
 import { Button } from "~/ui/components/ui/Button";
 import { Card } from "~/ui/components/ui/Card";
@@ -21,6 +11,15 @@ import { Tooltip } from "~/ui/components/ui/Tooltip";
 import { toast } from "~/ui/hooks/useToast.hook";
 import { cn } from "~/ui/lib/utils";
 import { useTheme } from "~/ui/providers/ThemeProvider";
+import { Copy } from "lucide-react";
+import { useCallback, useState } from "react";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import {
+  a11yLight,
+  atomOneDark,
+} from "react-syntax-highlighter/dist/esm/styles/hljs";
+import type { ClassNameValue } from "tailwind-merge";
+import { useCopyToClipboard } from "usehooks-ts";
 
 type CopyCodeButtonProps = {
   onCopy: () => void;

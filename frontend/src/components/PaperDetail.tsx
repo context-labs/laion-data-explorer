@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 import {
   Accordion,
   AccordionContent,
@@ -10,7 +8,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "~/ui";
-
+import { useEffect, useState } from "react";
 import type {
   ClusterInfo,
   PaperDetail as PaperDetailType,
@@ -106,8 +104,8 @@ export function PaperDetail({
 
   // Get cluster color from clusters data
   const clusterColor = paper?.cluster_id
-    ? clusters.find((c) => c.cluster_id === paper.cluster_id)?.color ??
-      "#888888"
+    ? (clusters.find((c) => c.cluster_id === paper.cluster_id)?.color ??
+      "#888888")
     : "#888888";
 
   // Convert hex color to rgba with opacity for border
@@ -163,7 +161,7 @@ export function PaperDetail({
                   <h2 className="leading-tight text-foreground w-[95%]">
                     {paper.title === ""
                       ? "[No title extracted]"
-                      : paper.title ?? "Untitled"}
+                      : (paper.title ?? "Untitled")}
                   </h2>
                 </div>
                 <div

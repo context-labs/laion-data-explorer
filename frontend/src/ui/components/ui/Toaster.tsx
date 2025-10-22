@@ -1,6 +1,3 @@
-import { useEffect } from "react";
-import { AlertTriangleIcon, CheckCircle, InfoIcon } from "lucide-react";
-
 import { Row } from "~/ui/components/custom/Row";
 import {
   Toast,
@@ -11,6 +8,8 @@ import {
   ToastViewport,
 } from "~/ui/components/ui/Toast";
 import { useToast } from "~/ui/hooks/useToast.hook";
+import { AlertTriangleIcon, CheckCircle, InfoIcon } from "lucide-react";
+import { useEffect } from "react";
 
 const TOAST_REMOVE_ON_WINDOW_BLUR_DELAY_MS = 500;
 

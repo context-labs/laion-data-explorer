@@ -17,6 +17,7 @@ export interface LogMessage {
 }
 
 export const LINKS = {
-  INFERENCE_DEVNET_STAKING_PROTOCOL_DOCUMENTATION: "https://docs.example.com/staking",
+  INFERENCE_DEVNET_STAKING_PROTOCOL_DOCUMENTATION:
+    "https://docs.example.com/staking",
   // Add other links as needed
 };

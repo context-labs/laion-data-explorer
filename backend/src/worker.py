@@ -6,13 +6,13 @@ import logging
 import os
 import sqlite3
 import time
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
-
 from workers import WorkerEntrypoint
 
 from models import (
@@ -20,8 +20,8 @@ from models import (
     ClustersResponse,
     ClusterTemporalData,
     PaperDetail,
-    PaperSummary,
     PapersResponse,
+    PaperSummary,
     TemporalDataPoint,
     TemporalDataResponse,
 )
@@ -63,9 +63,7 @@ else:
     # Try relative to the worker file
     DB_PATH = Path(__file__).parent.parent / "data" / "db.sqlite"
     if not DB_PATH.exists():
-        logger.warning(
-            f"DB not found at {DB_PATH.resolve()}, trying backend/data/db.sqlite"
-        )
+        logger.warning(f"DB not found at {DB_PATH.resolve()}, trying backend/data/db.sqlite")
         # Try relative to current working directory
         DB_PATH = Path("backend/data/db.sqlite")
     if not DB_PATH.exists():
@@ -117,9 +115,7 @@ async def handle_uncaught_exceptions(request: Request, exc: Exception) -> JSONRe
             content={"detail": "OK"},
         )
 
-    logger.exception(
-        "Unhandled error during request %s %s", request.method, request.url
-    )
+    logger.exception("Unhandled error during request %s %s", request.method, request.url)
 
     return JSONResponse(
         status_code=500,
@@ -127,7 +123,7 @@ async def handle_uncaught_exceptions(request: Request, exc: Exception) -> JSONRe
     )
 
 
-def _normalize_params(params: Optional[Sequence[Any]]) -> Sequence[Any]:
+def _normalize_params(params: Sequence[Any] | None) -> Sequence[Any]:
     """Ensure query parameters are always a tuple."""
     if params is None:
         return ()
@@ -139,14 +135,10 @@ def _normalize_params(params: Optional[Sequence[Any]]) -> Sequence[Any]:
 
 
 class BaseDatabase:
-    async def fetch_all(
-        self, query: str, params: Optional[Sequence[Any]] = None
-    ) -> List[Dict[str, Any]]:
+    async def fetch_all(self, query: str, params: Sequence[Any] | None = None) -> list[dict[str, Any]]:
         raise NotImplementedError
 
-    async def fetch_one(
-        self, query: str, params: Optional[Sequence[Any]] = None
-    ) -> Optional[Dict[str, Any]]:
+    async def fetch_one(self, query: str, params: Sequence[Any] | None = None) -> dict[str, Any] | None:
         raise NotImplementedError
 
 
@@ -156,9 +148,7 @@ class SqliteDatabase(BaseDatabase):
         logger.info(f"SqliteDatabase initialized with path: {self.db_path.resolve()}")
         logger.info(f"Database file exists: {self.db_path.exists()}")
 
-    async def fetch_all(
-        self, query: str, params: Optional[Sequence[Any]] = None
-    ) -> List[Dict[str, Any]]:
+    async def fetch_all(self, query: str, params: Sequence[Any] | None = None) -> list[dict[str, Any]]:
         params = _normalize_params(params)
         try:
             with sqlite3.connect(str(self.db_path)) as conn:
@@ -168,14 +158,10 @@ class SqliteDatabase(BaseDatabase):
                 rows = cursor.fetchall()
             return [dict(row) for row in rows]
         except sqlite3.OperationalError as e:
-            logger.error(
-                f"SQLite error with db_path={self.db_path.resolve()}, exists={self.db_path.exists()}: {e}"
-            )
+            logger.error(f"SQLite error with db_path={self.db_path.resolve()}, exists={self.db_path.exists()}: {e}")
             raise
 
-    async def fetch_one(
-        self, query: str, params: Optional[Sequence[Any]] = None
-    ) -> Optional[Dict[str, Any]]:
+    async def fetch_one(self, query: str, params: Sequence[Any] | None = None) -> dict[str, Any] | None:
         params = _normalize_params(params)
         try:
             with sqlite3.connect(str(self.db_path)) as conn:
@@ -185,9 +171,7 @@ class SqliteDatabase(BaseDatabase):
                 row = cursor.fetchone()
             return dict(row) if row else None
         except sqlite3.OperationalError as e:
-            logger.error(
-                f"SQLite error with db_path={self.db_path.resolve()}, exists={self.db_path.exists()}: {e}"
-            )
+            logger.error(f"SQLite error with db_path={self.db_path.resolve()}, exists={self.db_path.exists()}: {e}")
             raise
 
 
@@ -195,7 +179,7 @@ class D1Database(BaseDatabase):
     def __init__(self, binding: Any) -> None:
         self.binding = binding
 
-    def _convert_row(self, row: Any) -> Dict[str, Any]:
+    def _convert_row(self, row: Any) -> dict[str, Any]:
         """Convert a D1 row (JsProxy) to a Python dict, handling null values."""
         result = {}
         for key, value in row.object_entries():
@@ -208,9 +192,7 @@ class D1Database(BaseDatabase):
                 result[key] = value
         return result
 
-    async def fetch_all(
-        self, query: str, params: Optional[Sequence[Any]] = None
-    ) -> List[Dict[str, Any]]:
+    async def fetch_all(self, query: str, params: Sequence[Any] | None = None) -> list[dict[str, Any]]:
         params = _normalize_params(params)
         statement = self.binding.prepare(query)
         if params:
@@ -219,9 +201,7 @@ class D1Database(BaseDatabase):
         # Convert JsProxy objects to Python dicts
         return [self._convert_row(row) for row in result.results]
 
-    async def fetch_one(
-        self, query: str, params: Optional[Sequence[Any]] = None
-    ) -> Optional[Dict[str, Any]]:
+    async def fetch_one(self, query: str, params: Sequence[Any] | None = None) -> dict[str, Any] | None:
         params = _normalize_params(params)
         statement = self.binding.prepare(query)
         if params:
@@ -233,7 +213,7 @@ class D1Database(BaseDatabase):
         return self._convert_row(result)
 
 
-def get_database(request: Optional[Request] = None) -> BaseDatabase:
+def get_database(request: Request | None = None) -> BaseDatabase:
     """Return an appropriate database client for the current environment."""
     if request is not None:
         env = request.scope.get("env")
@@ -301,11 +281,9 @@ async def root():
 @app.get("/api/papers")
 async def get_papers(
     request: Request,
-    cluster_id: Optional[int] = Query(None, description="Filter by cluster ID"),
-    limit: Optional[int] = Query(None, description="Limit number of results"),
-    sample_size: Optional[int] = Query(
-        None, description="Sample N most recent papers per cluster"
-    ),
+    cluster_id: int | None = Query(None, description="Filter by cluster ID"),
+    limit: int | None = Query(None, description="Limit number of results"),
+    sample_size: int | None = Query(None, description="Sample N most recent papers per cluster"),
 ):
     """Get all papers with coordinates and cluster information (gzip compressed)."""
     start_time = time.time()
@@ -383,10 +361,7 @@ async def get_papers(
             rows.extend(cluster_samples[cid])
 
         query_time = time.time() - query_start
-        logger.info(
-            f"DB Query (sample_size={sample_size}): {query_time:.3f}s, "
-            f"fetched {len(all_rows)} rows, sampled {len(rows)} papers from {len(cluster_samples)} clusters"
-        )
+        logger.info(f"DB Query (sample_size={sample_size}): {query_time:.3f}s, fetched {len(all_rows)} rows, sampled {len(rows)} papers from {len(cluster_samples)} clusters")
     else:
         # Original query for full data or single cluster
         query = """
@@ -396,7 +371,7 @@ async def get_papers(
             FROM papers
             WHERE x IS NOT NULL AND y IS NOT NULL
         """
-        params: List[Any] = []
+        params: list[Any] = []
 
         if cluster_id is not None:
             query += " AND cluster_id = ?"
@@ -412,10 +387,7 @@ async def get_papers(
         rows = await db.fetch_all(query, params)
         query_time = time.time() - query_start
 
-        logger.info(
-            f"DB Query (cluster_id={cluster_id}, limit={limit}): {query_time:.3f}s, "
-            f"returned {len(rows)} papers"
-        )
+        logger.info(f"DB Query (cluster_id={cluster_id}, limit={limit}): {query_time:.3f}s, returned {len(rows)} papers")
 
     papers = [
         PaperSummary(
@@ -450,15 +422,8 @@ async def get_papers(
     compressed_size = len(compressed_content)
     compression_ratio = (compressed_size / uncompressed_size) * 100
 
-    logger.info(
-        f"Serialization: {serialization_time:.3f}s, "
-        f"Compression: {compression_time:.3f}s, "
-        f"Total: {total_time:.3f}s"
-    )
-    logger.info(
-        f"Size: {uncompressed_size:,} -> {compressed_size:,} bytes "
-        f"({compression_ratio:.1f}% compression)"
-    )
+    logger.info(f"Serialization: {serialization_time:.3f}s, Compression: {compression_time:.3f}s, Total: {total_time:.3f}s")
+    logger.info(f"Size: {uncompressed_size:,} -> {compressed_size:,} bytes ({compression_ratio:.1f}% compression)")
 
     return Response(
         content=compressed_content,
@@ -638,9 +603,7 @@ async def get_nearest_papers(
     )
 
     if not target:
-        raise HTTPException(
-            status_code=404, detail="Paper not found or has no coordinates"
-        )
+        raise HTTPException(status_code=404, detail="Paper not found or has no coordinates")
 
     target_x, target_y, target_z = target["x"], target["y"], target["z"]
     target_z = target_z if target_z is not None else 0.0
@@ -697,14 +660,10 @@ async def get_stats(request: Request):
     total_row = await db.fetch_one("SELECT COUNT(*) as total FROM papers")
     total = total_row["total"] if total_row else 0
 
-    with_coords_row = await db.fetch_one(
-        "SELECT COUNT(*) as with_coords FROM papers WHERE x IS NOT NULL"
-    )
+    with_coords_row = await db.fetch_one("SELECT COUNT(*) as with_coords FROM papers WHERE x IS NOT NULL")
     with_coords = with_coords_row["with_coords"] if with_coords_row else 0
 
-    num_clusters_row = await db.fetch_one(
-        "SELECT COUNT(DISTINCT cluster_id) as num_clusters FROM papers WHERE cluster_id IS NOT NULL"
-    )
+    num_clusters_row = await db.fetch_one("SELECT COUNT(DISTINCT cluster_id) as num_clusters FROM papers WHERE cluster_id IS NOT NULL")
     num_clusters = num_clusters_row["num_clusters"] if num_clusters_row else 0
 
     return {
@@ -742,7 +701,7 @@ async def get_temporal_data(
     )
 
     # Organize data by cluster
-    cluster_data_map: Dict[int, Dict[str, Any]] = {}
+    cluster_data_map: dict[int, dict[str, Any]] = {}
     for row in rows:
         cluster_id = row["cluster_id"]
         cluster_label = row["cluster_label"]
@@ -757,9 +716,7 @@ async def get_temporal_data(
                 "temporal_data": [],
             }
 
-        cluster_data_map[cluster_id]["temporal_data"].append(
-            {"year": int(year), "count": count}
-        )
+        cluster_data_map[cluster_id]["temporal_data"].append({"year": int(year), "count": count})
 
     # Convert to list and create response objects
     clusters = [
@@ -767,10 +724,7 @@ async def get_temporal_data(
             cluster_id=data["cluster_id"],
             cluster_label=data["cluster_label"],
             color=data["color"],
-            temporal_data=[
-                TemporalDataPoint(year=point["year"], count=point["count"])
-                for point in data["temporal_data"]
-            ],
+            temporal_data=[TemporalDataPoint(year=point["year"], count=point["count"]) for point in data["temporal_data"]],
         )
         for data in cluster_data_map.values()
     ]

@@ -1,17 +1,5 @@
-import type { Locale } from "date-fns/locale";
-import * as React from "react";
-import { useImperativeHandle, useRef } from "react";
-import { add, format } from "date-fns";
-import { enUS } from "date-fns/locale";
-import {
-  Calendar as CalendarIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "lucide-react";
-import { DayPicker } from "react-day-picker";
-
-import type { CalendarProps } from "~/ui/components/ui/Calendar";
 import { Button, buttonVariants } from "~/ui/components/ui/Button";
+import type { CalendarProps } from "~/ui/components/ui/Calendar";
 import { Input } from "~/ui/components/ui/Input";
 import {
   Popover,
@@ -20,6 +8,17 @@ import {
 } from "~/ui/components/ui/Popover";
 import { Select, SelectTrigger, SelectValue } from "~/ui/components/ui/Select";
 import { cn } from "~/ui/lib/utils";
+import { add, format } from "date-fns";
+import type { Locale } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
+import {
+  Calendar as CalendarIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "lucide-react";
+import * as React from "react";
+import { useImperativeHandle, useRef } from "react";
+import { DayPicker } from "react-day-picker";
 
 /** ******************************************************************************
  * NOTE: This DateTimePicker component is lifted from https://shadcnui-expansions.typeart.cc/docs/datetime-picker

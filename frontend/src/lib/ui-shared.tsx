@@ -27,7 +27,7 @@ export function useSwipeRightDetector(callback: (open: boolean) => void) {
         callback(false);
       }
     },
-    [touchStartX, callback]
+    [touchStartX, callback],
   );
 
   return {

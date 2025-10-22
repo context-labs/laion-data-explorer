@@ -1,6 +1,5 @@
-import { AlertTriangleIcon } from "lucide-react";
-
 import { Alert } from "~/ui/components/ui/Alert";
+import { AlertTriangleIcon } from "lucide-react";
 
 type AlertWarningProps = {
   title: string;

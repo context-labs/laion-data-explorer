@@ -1,8 +1,7 @@
-import type { ClassNameValue } from "tailwind-merge";
-import { ExternalLink, TestTube2Icon } from "lucide-react";
-
 import { LINKS } from "~/lib/models";
 import { cn } from "~/ui";
+import { ExternalLink, TestTube2Icon } from "lucide-react";
+import type { ClassNameValue } from "tailwind-merge";
 
 function BannerContent() {
   const LINK_STYLES: ClassNameValue = cn(`

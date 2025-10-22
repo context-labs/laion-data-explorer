@@ -18,19 +18,18 @@ import json
 import sqlite3
 from collections import Counter
 from pathlib import Path
-from typing import List, Tuple, Optional
 
 import numpy as np
 import umap
-from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN, MiniBatchKMeans
-from sklearn.metrics import silhouette_score
+from sklearn.cluster import DBSCAN, AgglomerativeClustering, KMeans, MiniBatchKMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import silhouette_score
 from tqdm import tqdm
 
 
 def load_embeddings(
     db_path: str,
-) -> Tuple[List[int], np.ndarray, List[str], List[str], List[str]]:
+) -> tuple[list[int], np.ndarray, list[str], list[str], list[str]]:
     """
     Load embeddings, fields, and three_takeaways from database.
 
@@ -112,13 +111,9 @@ def compute_umap_coordinates(
     Returns:
         Matrix of shape (n_papers, n_components) with coordinates
     """
-    print(
-        f"\nComputing UMAP projection to {n_components}D (this may take a few minutes)..."
-    )
+    print(f"\nComputing UMAP projection to {n_components}D (this may take a few minutes)...")
     print(f"  Input shape: {embeddings.shape}")
-    print(
-        f"  Parameters: n_neighbors={n_neighbors}, min_dist={min_dist}, n_components={n_components}"
-    )
+    print(f"  Parameters: n_neighbors={n_neighbors}, min_dist={min_dist}, n_components={n_components}")
 
     reducer = umap.UMAP(
         n_components=n_components,
@@ -135,9 +130,7 @@ def compute_umap_coordinates(
     return coordinates
 
 
-def find_optimal_clusters(
-    embeddings: np.ndarray, min_k: int = 20, max_k: int = 60
-) -> int:
+def find_optimal_clusters(embeddings: np.ndarray, min_k: int = 20, max_k: int = 60) -> int:
     """
     Find optimal number of clusters using silhouette score.
 
@@ -196,16 +189,12 @@ def find_optimal_clusters(
     optimal_idx = np.argmax(scores)
     optimal_k = list(k_values)[optimal_idx]
 
-    print(
-        f"  Optimal clusters: {optimal_k} (silhouette score: {scores[optimal_idx]:.3f})"
-    )
+    print(f"  Optimal clusters: {optimal_k} (silhouette score: {scores[optimal_idx]:.3f})")
 
     return optimal_k
 
 
-def compute_clusters_kmeans(
-    embeddings: np.ndarray, n_clusters: Optional[int] = None, auto_optimize: bool = True
-) -> np.ndarray:
+def compute_clusters_kmeans(embeddings: np.ndarray, n_clusters: int | None = None, auto_optimize: bool = True) -> np.ndarray:
     """
     Compute clusters using K-Means.
 
@@ -228,9 +217,7 @@ def compute_clusters_kmeans(
     # Use MiniBatchKMeans for large datasets
     if len(embeddings) > 10000:
         print("  Using MiniBatchKMeans for efficiency...")
-        clusterer = MiniBatchKMeans(
-            n_clusters=n_clusters, random_state=42, batch_size=256, max_iter=100
-        )
+        clusterer = MiniBatchKMeans(n_clusters=n_clusters, random_state=42, batch_size=256, max_iter=100)
     else:
         clusterer = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
 
@@ -239,16 +226,12 @@ def compute_clusters_kmeans(
     # Count cluster sizes
     unique, counts = np.unique(cluster_ids, return_counts=True)
     print(f"  Created {len(unique)} clusters")
-    print(
-        f"  Cluster sizes: min={counts.min()}, max={counts.max()}, mean={counts.mean():.1f}"
-    )
+    print(f"  Cluster sizes: min={counts.min()}, max={counts.max()}, mean={counts.mean():.1f}")
 
     return cluster_ids
 
 
-def compute_clusters_agglomerative(
-    embeddings: np.ndarray, n_clusters: int = 40
-) -> np.ndarray:
+def compute_clusters_agglomerative(embeddings: np.ndarray, n_clusters: int = 40) -> np.ndarray:
     """
     Compute clusters using Agglomerative Clustering (hierarchical).
     Better for finding nested structure but slower.
@@ -264,28 +247,20 @@ def compute_clusters_agglomerative(
 
     # For large datasets, use a sample to build the hierarchy
     if len(embeddings) > 5000:
-        print(
-            "  Note: Agglomerative clustering is slow for large datasets. Consider using 'kmeans' instead."
-        )
+        print("  Note: Agglomerative clustering is slow for large datasets. Consider using 'kmeans' instead.")
 
-    clusterer = AgglomerativeClustering(
-        n_clusters=n_clusters, metric="cosine", linkage="average"
-    )
+    clusterer = AgglomerativeClustering(n_clusters=n_clusters, metric="cosine", linkage="average")
 
     cluster_ids = clusterer.fit_predict(embeddings)
 
     unique, counts = np.unique(cluster_ids, return_counts=True)
     print(f"  Created {len(unique)} clusters")
-    print(
-        f"  Cluster sizes: min={counts.min()}, max={counts.max()}, mean={counts.mean():.1f}"
-    )
+    print(f"  Cluster sizes: min={counts.min()}, max={counts.max()}, mean={counts.mean():.1f}")
 
     return cluster_ids
 
 
-def compute_clusters_dbscan(
-    embeddings: np.ndarray, eps: float = 0.3, min_samples: int = 5
-) -> np.ndarray:
+def compute_clusters_dbscan(embeddings: np.ndarray, eps: float = 0.3, min_samples: int = 5) -> np.ndarray:
     """
     Compute clusters using DBSCAN (density-based).
     Good for finding clusters of arbitrary shape.
@@ -298,7 +273,7 @@ def compute_clusters_dbscan(
     Returns:
         Array of cluster IDs for each paper (-1 for noise)
     """
-    print(f"\nClustering with DBSCAN...")
+    print("\nClustering with DBSCAN...")
     print(f"  Parameters: eps={eps}, min_samples={min_samples}")
 
     clusterer = DBSCAN(eps=eps, min_samples=min_samples, metric="cosine", n_jobs=-1)
@@ -317,9 +292,9 @@ def compute_clusters_dbscan(
 
 def extract_cluster_labels(
     cluster_ids: np.ndarray,
-    titles: List[str],
-    fields: List[str],
-    three_takeaways: List[str],
+    titles: list[str],
+    fields: list[str],
+    three_takeaways: list[str],
     top_n: int = 5,
 ) -> dict:
     """
@@ -335,7 +310,7 @@ def extract_cluster_labels(
     Returns:
         Dictionary mapping cluster_id to label string
     """
-    print(f"\nExtracting cluster labels...")
+    print("\nExtracting cluster labels...")
 
     cluster_labels = {}
     unique_clusters = np.unique(cluster_ids)
@@ -348,9 +323,7 @@ def extract_cluster_labels(
         # Get fields and three_takeaways for this cluster
         cluster_mask = cluster_ids == cluster_id
         cluster_fields = [fields[i] for i in range(len(fields)) if cluster_mask[i]]
-        cluster_takeaways = [
-            three_takeaways[i] for i in range(len(three_takeaways)) if cluster_mask[i]
-        ]
+        cluster_takeaways = [three_takeaways[i] for i in range(len(three_takeaways)) if cluster_mask[i]]
 
         if not cluster_fields:
             cluster_labels[cluster_id] = f"Cluster {cluster_id}"
@@ -436,12 +409,10 @@ def extract_cluster_labels(
             cluster_labels[cluster_id] = f"Cluster {cluster_id}"
 
     # Print summary
-    print(f"\nCluster summary:")
+    print("\nCluster summary:")
     for cluster_id in sorted([c for c in unique_clusters if c != -1]):
         cluster_size = np.sum(cluster_ids == cluster_id)
-        print(
-            f"  Cluster {cluster_id} ({cluster_size} papers): {cluster_labels[cluster_id]}"
-        )
+        print(f"  Cluster {cluster_id} ({cluster_size} papers): {cluster_labels[cluster_id]}")
 
     return cluster_labels
 
@@ -478,7 +449,7 @@ def add_visualization_columns(db_path: str) -> None:
 
 def store_visualization_data(
     db_path: str,
-    paper_ids: List[int],
+    paper_ids: list[int],
     coordinates: np.ndarray,
     cluster_ids: np.ndarray,
     cluster_labels: dict,
@@ -493,7 +464,7 @@ def store_visualization_data(
         cluster_ids: Cluster assignments
         cluster_labels: Cluster label lookup
     """
-    print(f"\nStoring visualization data in database...")
+    print("\nStoring visualization data in database...")
 
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -533,9 +504,7 @@ def store_visualization_data(
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Compute visualization coordinates and clusters from embeddings"
-    )
+    parser = argparse.ArgumentParser(description="Compute visualization coordinates and clusters from embeddings")
     parser.add_argument(
         "--db",
         default="data/db.sqlite",
@@ -606,9 +575,7 @@ def main():
     add_visualization_columns(str(db_path))
 
     # Load data
-    paper_ids, embeddings, titles, fields, three_takeaways = load_embeddings(
-        str(db_path)
-    )
+    paper_ids, embeddings, titles, fields, three_takeaways = load_embeddings(str(db_path))
 
     if len(paper_ids) == 0:
         print("Error: No papers with embeddings found in database")
@@ -633,25 +600,19 @@ def main():
         n_clusters = args.n_clusters or 40
         cluster_ids = compute_clusters_agglomerative(embeddings, n_clusters)
     elif args.method == "dbscan":
-        cluster_ids = compute_clusters_dbscan(
-            embeddings, eps=args.dbscan_eps, min_samples=args.dbscan_min_samples
-        )
+        cluster_ids = compute_clusters_dbscan(embeddings, eps=args.dbscan_eps, min_samples=args.dbscan_min_samples)
     else:
         raise ValueError(f"Unknown clustering method: {args.method}")
 
     # Extract cluster labels using field_subfield and three_takeaways
-    cluster_labels = extract_cluster_labels(
-        cluster_ids, titles, fields, three_takeaways
-    )
+    cluster_labels = extract_cluster_labels(cluster_ids, titles, fields, three_takeaways)
 
     # Store results
-    store_visualization_data(
-        str(db_path), paper_ids, coordinates, cluster_ids, cluster_labels
-    )
+    store_visualization_data(str(db_path), paper_ids, coordinates, cluster_ids, cluster_labels)
 
     print("\n✓ Visualization data computation complete!")
     print(f"  Papers processed: {len(paper_ids)}")
-    print(f"  Clusters found: {len([c for c in cluster_labels.keys() if c != -1])}")
+    print(f"  Clusters found: {len([c for c in cluster_labels if c != -1])}")
     print("\nYou can now run the API server and visualize the data!")
 
     return 0

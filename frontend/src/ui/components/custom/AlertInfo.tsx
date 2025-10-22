@@ -1,6 +1,5 @@
-import { InfoIcon } from "lucide-react";
-
 import { Alert } from "~/ui/components/ui/Alert";
+import { InfoIcon } from "lucide-react";
 
 type AlertInfoProps = {
   title: string;

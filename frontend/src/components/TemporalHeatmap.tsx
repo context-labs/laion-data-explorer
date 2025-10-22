@@ -1,14 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
-import { useAtom } from "jotai";
-import Plot from "react-plotly.js";
-
 import { Input, Select, Switch, useTheme } from "~/ui";
-
-import type { ClusterTemporalData, TemporalDataResponse } from "../types";
+import { useAtom } from "jotai";
+import { useEffect, useMemo, useState } from "react";
+import Plot from "react-plotly.js";
 import {
   createYearRangeKey,
   temporalDataAtomFamily,
 } from "../state/chartDataCache";
+import type { ClusterTemporalData, TemporalDataResponse } from "../types";
 import { getApiUrl } from "../utils/api";
 
 interface TemporalHeatmapProps {
@@ -286,7 +284,9 @@ export function TemporalHeatmap({
       <div className="border-b border-border bg-background px-6 py-4">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <label className="whitespace-nowrap text-sm text-foreground">Year Range:</label>
+            <label className="whitespace-nowrap text-sm text-foreground">
+              Year Range:
+            </label>
             <Input
               type="number"
               value={minYear}
@@ -319,7 +319,9 @@ export function TemporalHeatmap({
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="whitespace-nowrap text-sm text-foreground">Top Clusters:</label>
+            <label className="whitespace-nowrap text-sm text-foreground">
+              Top Clusters:
+            </label>
             <Select
               value={topN.toString()}
               onValueChange={(value) => setTopN(parseInt(value))}
@@ -333,7 +335,9 @@ export function TemporalHeatmap({
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="whitespace-nowrap text-sm text-foreground">Sort By:</label>
+            <label className="whitespace-nowrap text-sm text-foreground">
+              Sort By:
+            </label>
             <Select
               value={sortBy}
               onValueChange={(value) => setSortBy(value as HeatmapSortOption)}
@@ -346,7 +350,9 @@ export function TemporalHeatmap({
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="whitespace-nowrap text-sm text-foreground">Color Scale:</label>
+            <label className="whitespace-nowrap text-sm text-foreground">
+              Color Scale:
+            </label>
             <Select
               value={colorScale}
               onValueChange={(value) => setColorScale(value)}
