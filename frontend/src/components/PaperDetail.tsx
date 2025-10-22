@@ -96,7 +96,10 @@ export function PaperDetail({
     <Sheet
       open={paperId !== null}
       onOpenChange={(open) => {
-        if (!open) onClose();
+        if (!open) {
+          onClose();
+          setAccordionValue("");
+        }
       }}
     >
       <SheetContent
