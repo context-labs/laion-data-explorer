@@ -315,6 +315,8 @@ export default function LaionApp() {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
+  const [emailSubmitSuccess, setEmailSubmitSuccess] = useState(false);
   const [interestedInFullDataset, setInterestedInFullDataset] = useState(true);
   const [interestedInModelTraining, setInterestedInModelTraining] =
     useState(false);
@@ -462,7 +464,7 @@ export default function LaionApp() {
     }
   };
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Basic email validation
@@ -476,22 +478,38 @@ export default function LaionApp() {
       return;
     }
 
-    // Clear any previous errors
+    // Clear any previous errors and start submitting
     setEmailError("");
+    setEmailSubmitting(true);
 
-    // Track email submission in PostHog
-    posthog.capture("email_submitted", {
-      email,
-      interested_in_full_dataset: interestedInFullDataset,
-      interested_in_model_training: interestedInModelTraining,
-    });
+    try {
+      // Track email submission in PostHog
+      posthog.capture("email_submitted", {
+        email,
+        interested_in_full_dataset: interestedInFullDataset,
+        interested_in_model_training: interestedInModelTraining,
+      });
 
-    // Close dialog and reset form
-    setEmailDialogOpen(false);
-    setEmail("");
-    setEmailError("");
-    setInterestedInFullDataset(false);
-    setInterestedInModelTraining(false);
+      // Show success state
+      setEmailSubmitSuccess(true);
+
+      // Close dialog after a delay to show success message
+      setTimeout(() => {
+        setEmailDialogOpen(false);
+        // Reset form state after dialog closes
+        setTimeout(() => {
+          setEmail("");
+          setEmailError("");
+          setEmailSubmitting(false);
+          setEmailSubmitSuccess(false);
+          setInterestedInFullDataset(true);
+          setInterestedInModelTraining(false);
+        }, 300); // Wait for dialog close animation
+      }, 1500); // Show success for 1.5 seconds
+    } catch (err) {
+      setEmailError("Failed to submit. Please try again.");
+      setEmailSubmitting(false);
+    }
   };
 
   if (error) {
@@ -980,6 +998,8 @@ export default function LaionApp() {
       <DialogRoot
         open={emailDialogOpen}
         onOpenChange={(open) => {
+          // Prevent closing during submission
+          if (emailSubmitting || emailSubmitSuccess) return;
           setEmailDialogOpen(open);
           if (!open) {
             setEmailError("");
@@ -987,70 +1007,106 @@ export default function LaionApp() {
         }}
       >
         <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Stay Updated on the Full Dataset</DialogTitle>
-            <DialogDescription>
-              The full ~50m dataset is currently being processed. Enter your
-              email below if you would like to be notified with updates.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleEmailSubmit}>
-            <div className="space-y-4 p-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setEmailError("");
-                  }}
-                  required
-                  className={emailError ? "border-red-500" : ""}
-                />
-                {emailError && (
-                  <p className="text-sm text-red-500">{emailError}</p>
-                )}
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="full-dataset"
-                    checked={interestedInFullDataset}
-                    onCheckedChange={(checked) =>
-                      setInterestedInFullDataset(checked === true)
-                    }
-                  />
-                  <Label htmlFor="full-dataset" className="cursor-pointer">
-                    I'm interested in the full dataset
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="model-training"
-                    checked={interestedInModelTraining}
-                    onCheckedChange={(checked) =>
-                      setInterestedInModelTraining(checked === true)
-                    }
-                  />
-                  <Label htmlFor="model-training" className="cursor-pointer">
-                    I'm interested in custom model-training
-                  </Label>
+          {emailSubmitSuccess ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Thank You!</DialogTitle>
+                <DialogDescription>
+                  We've received your information and will keep you updated.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex items-center justify-center p-8">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                  <svg
+                    className="h-8 w-8 text-green-600 dark:text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
                 </div>
               </div>
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setEmailDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit">Submit</Button>
-            </DialogFooter>
-          </form>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Stay Updated on the Full Dataset</DialogTitle>
+                <DialogDescription>
+                  The full ~50m dataset is currently being processed. Enter your
+                  email below if you would like to be notified with updates.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleEmailSubmit}>
+                <div className="space-y-4 p-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setEmailError("");
+                      }}
+                      required
+                      disabled={emailSubmitting}
+                      className={emailError ? "border-red-500" : ""}
+                    />
+                    {emailError && (
+                      <p className="text-sm text-red-500">{emailError}</p>
+                    )}
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="full-dataset"
+                        checked={interestedInFullDataset}
+                        onCheckedChange={(checked) =>
+                          setInterestedInFullDataset(checked === true)
+                        }
+                        disabled={emailSubmitting}
+                      />
+                      <Label htmlFor="full-dataset" className="cursor-pointer">
+                        I'm interested in the full dataset
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="model-training"
+                        checked={interestedInModelTraining}
+                        onCheckedChange={(checked) =>
+                          setInterestedInModelTraining(checked === true)
+                        }
+                        disabled={emailSubmitting}
+                      />
+                      <Label htmlFor="model-training" className="cursor-pointer">
+                        I'm interested in custom model-training
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEmailDialogOpen(false)}
+                    disabled={emailSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={emailSubmitting}>
+                    {emailSubmitting ? "Submitting..." : "Submit"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </>
+          )}
         </DialogContent>
       </DialogRoot>
     </div>
