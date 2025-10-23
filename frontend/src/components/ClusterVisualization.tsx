@@ -55,6 +55,7 @@ export function ClusterVisualization({
     // Set lower density on mobile for better performance
     return typeof window !== "undefined" && window.innerWidth < 1024 ? 20 : 100;
   });
+  const [zoomLevel, setZoomLevel] = useState(1.5); // Default zoom level for mobile
   // Use ref instead of state to avoid re-renders when modifier key is pressed
   const isModifierPressedRef = useRef(false);
   const [prevLayoutType, setPrevLayoutType] = useState(layoutType);
@@ -367,8 +368,19 @@ export function ClusterVisualization({
   }, []);
 
   // Memoize layout config to prevent unnecessary re-renders
-  const plotLayout = useMemo(
-    () => ({
+  const plotLayout = useMemo(() => {
+    const baseCamera = getCameraForLayout(layoutType);
+    // Apply zoom level to camera eye position
+    const camera = {
+      ...baseCamera,
+      eye: {
+        x: baseCamera.eye.x * zoomLevel,
+        y: baseCamera.eye.y * zoomLevel,
+        z: baseCamera.eye.z * zoomLevel,
+      },
+    };
+
+    return {
       showlegend: false,
       legend: {
         orientation: "v" as const,
@@ -416,7 +428,7 @@ export function ClusterVisualization({
           backgroundcolor: isDarkTheme ? "#0d121c" : "#fafafa",
           showticklabels: false,
         },
-        camera: getCameraForLayout(layoutType),
+        camera: camera,
         annotations: sceneAnnotations,
       },
       paper_bgcolor: isDarkTheme ? "#0d121c" : "white",
@@ -424,9 +436,8 @@ export function ClusterVisualization({
       margin: { t: 10, r: 10, b: 10, l: 10 },
       autosize: true,
       uirevision: uirevision,
-    }),
-    [isDarkTheme, layoutType, sceneAnnotations, uirevision],
-  );
+    };
+  }, [isDarkTheme, layoutType, sceneAnnotations, uirevision, zoomLevel]);
 
   // Memoize plot config to prevent unnecessary re-renders
   const plotConfig = useMemo(
@@ -469,6 +480,71 @@ export function ClusterVisualization({
           transform: scale(1);
         }
       `}</style>
+      {/* Mobile zoom slider */}
+      <div
+        className={`
+          absolute left-1/2 top-2.5 z-10 -translate-x-1/2
+
+          lg:hidden
+        `}
+        style={{
+          width: "calc(100% - 20px)",
+          maxWidth: "400px",
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: isDarkTheme
+              ? "rgba(18, 25, 38, 0.95)"
+              : "rgba(255, 255, 255, 0.95)",
+            padding: "8px 12px",
+            borderRadius: "8px",
+            fontSize: "12px",
+            color: isDarkTheme ? "#d1d5db" : "#666",
+            border: isDarkTheme ? "1px solid #374151" : "1px solid #ddd",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "4px",
+            }}
+          >
+            <Label
+              htmlFor="zoom-slider-mobile"
+              style={{
+                fontSize: "12px",
+                margin: 0,
+                color: isDarkTheme ? "#d1d5db" : "#666",
+              }}
+            >
+              Zoom
+            </Label>
+            <span
+              style={{
+                fontSize: "12px",
+                fontWeight: "600",
+                color: isDarkTheme ? "#f9fafb" : "#333",
+              }}
+            >
+              {Math.round((2 / zoomLevel) * 100)}%
+            </span>
+          </div>
+          <Slider
+            id="zoom-slider-mobile"
+            value={[zoomLevel]}
+            min={0.5}
+            max={2}
+            step={0.1}
+            onValueChange={([value]) => value && setZoomLevel(value)}
+            aria-label="Zoom level"
+            className="my-2"
+          />
+        </div>
+      </div>
       <div
         className={`
           absolute right-2.5 top-2.5 z-10 hidden
@@ -601,7 +677,17 @@ export function ClusterVisualization({
             };
             if (eventData.points?.[0]?.customdata) {
               const [paperId] = eventData.points[0].customdata;
-              if (paperId && isModifierPressedRef.current) {
+              if (!paperId) return;
+
+              // On mobile (< 1024px), allow direct tap. On desktop, require modifier key
+              const isMobile =
+                typeof window !== "undefined" && window.innerWidth < 1024;
+
+              if (isMobile) {
+                // Mobile: tap to open
+                onPaperClick(paperId);
+              } else if (isModifierPressedRef.current) {
+                // Desktop: only open if Ctrl/Cmd is pressed
                 onPaperClick(paperId);
               }
             }

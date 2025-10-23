@@ -556,78 +556,113 @@ export default function LaionApp() {
       `}</style>
       <header
         className={cn(`
-          flex items-center justify-between border-b border-border bg-background
-          p-4 text-foreground shadow-md
+          border-b border-border bg-background text-foreground shadow-md
 
           lg:hidden
         `)}
       >
-        <div className="flex items-center">
-          <a
-            href="https://inference.net"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex"
-          >
-            <InferenceIcon height={20} width={120} />
-          </a>
-          <PlusIcon className="ml-3 h-3 w-3 text-muted-foreground" />
-          <a
-            href="https://laion.ai"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex"
-          >
-            <img
-              src={LaionLightLogo}
-              alt="LAION"
-              className={`
-                h-10
-
-                dark:hidden
-              `}
-            />
-            <img
-              src={LaionDarkLogo}
-              alt="LAION"
-              className={`
-                hidden h-10
-
-                dark:block
-              `}
-            />
-          </a>
-        </div>
-        <Sheet onOpenChange={setMobileMenuOpen} open={mobileMenuOpen}>
-          <SheetTrigger asChild className="lg:hidden">
-            <Button
-              aria-label="Open Mobile Navigation Menu"
-              size="icon"
-              variant="ghost"
+        {/* First row: logos and menu */}
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center">
+            <a
+              href="https://inference.net"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex"
             >
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SwipeableSheetContent setMobileMenuOpen={setMobileMenuOpen}>
-            <MobileNavigation
-              viewMode={viewMode}
-              onRandomPaper={handleRandomPaper}
-              clusters={clusters}
-              selectedClusterIds={selectedClusterIds}
-              onToggleCluster={handleToggleCluster}
-              onSelectAll={handleSelectAll}
-              onClearAll={handleClearAll}
-              onSelectRandom={handleSelectRandom}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              onSearchSubmit={handleSearch}
-              totalPapers={papers.length}
-              setMobileMenuOpen={setMobileMenuOpen}
-              loading={loading}
-              onEmailCTAClick={() => setEmailDialogOpen(true)}
+              <InferenceIcon height={20} width={120} />
+            </a>
+            <PlusIcon className="ml-3 h-3 w-3 text-muted-foreground" />
+            <a
+              href="https://laion.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex"
+            >
+              <img
+                src={LaionLightLogo}
+                alt="LAION"
+                className={`
+                  h-10
+
+                  dark:hidden
+                `}
+              />
+              <img
+                src={LaionDarkLogo}
+                alt="LAION"
+                className={`
+                  hidden h-10
+
+                  dark:block
+                `}
+              />
+            </a>
+          </div>
+          <Sheet onOpenChange={setMobileMenuOpen} open={mobileMenuOpen}>
+            <SheetTrigger asChild className="lg:hidden">
+              <Button
+                aria-label="Open Mobile Navigation Menu"
+                size="icon"
+                variant="ghost"
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SwipeableSheetContent setMobileMenuOpen={setMobileMenuOpen}>
+              <MobileNavigation
+                viewMode={viewMode}
+                onRandomPaper={handleRandomPaper}
+                clusters={clusters}
+                selectedClusterIds={selectedClusterIds}
+                onToggleCluster={handleToggleCluster}
+                onSelectAll={handleSelectAll}
+                onClearAll={handleClearAll}
+                onSelectRandom={handleSelectRandom}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSearchSubmit={handleSearch}
+                totalPapers={papers.length}
+                setMobileMenuOpen={setMobileMenuOpen}
+                loading={loading}
+                onEmailCTAClick={() => setEmailDialogOpen(true)}
+              />
+            </SwipeableSheetContent>
+          </Sheet>
+        </div>
+        {/* Second row: cluster plot select and what is this button */}
+        <div
+          className={`
+            flex items-center justify-between border-t border-border px-4 py-2
+          `}
+        >
+          {!loading && viewMode === "3d" ? (
+            <Select
+              value={layoutType}
+              onValueChange={(value) => setLayoutType(value as LayoutType)}
+              options={[
+                { value: "original", label: "Embeddings" },
+                { value: "sphere", label: "Sphere" },
+                { value: "galaxy", label: "Galaxy" },
+                { value: "wave", label: "Wave" },
+                { value: "helix", label: "Helix" },
+                { value: "torus", label: "Torus" },
+              ]}
+              placeholder="Select layout"
+              className="w-[160px]"
             />
-          </SwipeableSheetContent>
-        </Sheet>
+          ) : (
+            <div />
+          )}
+          <Button
+            size="xs"
+            onClick={() => setLearnMoreSheetOpen(true)}
+            variant="outline"
+          >
+            <AtomIcon className="mr-1.5 h-3.5 w-3.5" />
+            What is this?
+          </Button>
+        </div>
       </header>
       <header
         className={`
@@ -777,7 +812,7 @@ export default function LaionApp() {
                     ${!hasOpenedPaperDetail ? "shimmer-text" : ""}
                   `}
                 >
-                  Click + Ctrl/Meta Key on a cluster node to open paper details
+                  Click + Cmd/Ctrl Key on a cluster node to open paper details
                 </span>
               )}
             </div>
@@ -790,7 +825,7 @@ export default function LaionApp() {
                       setLayoutType(value as LayoutType)
                     }
                     options={[
-                      { value: "original", label: "Embedding Clusters" },
+                      { value: "original", label: "Embeddings" },
                       { value: "sphere", label: "Sphere" },
                       { value: "galaxy", label: "Galaxy" },
                       { value: "wave", label: "Wave" },

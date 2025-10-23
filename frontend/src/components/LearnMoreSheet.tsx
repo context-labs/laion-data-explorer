@@ -97,7 +97,7 @@ export function LearnMoreSheet({
               obfuscatedCode={SCHEMA_CODE}
               copyButton={<></>}
               className="mt-2"
-              customStyle={{ fontSize: "1rem" }}
+              customStyle={{ fontSize: "0.8rem" }}
             />
           </Col>
           <Col className="mt-12 gap-2">
