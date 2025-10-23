@@ -367,7 +367,8 @@ export default function LaionApp() {
     if (newViewMode !== viewMode) {
       setViewMode(newViewMode);
     }
-  }, [location, viewMode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
   // Track when user opens their first paper detail
   useEffect(() => {
