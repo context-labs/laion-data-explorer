@@ -38,14 +38,9 @@ import {
   PlusIcon,
   SunMoonIcon,
 } from "lucide-react";
-import { useLocation } from "wouter";
-import {
-  getPathFromViewMode,
-  getViewModeFromPath,
-  type ViewMode,
-} from "./utils/routeMapping";
 import { usePostHog } from "posthog-js/react";
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import LaionDarkLogo from "./assets/logos/Laion-dark.svg";
 import LaionLightLogo from "./assets/logos/Laion-light.svg";
 import { ClusterLegend } from "./components/ClusterLegend";
@@ -71,6 +66,11 @@ import type {
 } from "./types";
 import { fetchCompressed, getApiUrl } from "./utils/api";
 import type { LayoutType } from "./utils/layoutTransforms";
+import {
+  getPathFromViewMode,
+  getViewModeFromPath,
+  type ViewMode,
+} from "./utils/routeMapping";
 
 type SwipeableSheetContentProps = {
   children: React.ReactNode;

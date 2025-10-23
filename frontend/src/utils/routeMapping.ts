@@ -1,12 +1,18 @@
-export type ViewMode = "3d" | "heatmap" | "stacked" | "distribution" | "samples" | "force";
+export type ViewMode =
+  | "3d"
+  | "heatmap"
+  | "stacked"
+  | "distribution"
+  | "samples"
+  | "force";
 
 export const VIEW_MODE_TO_ROUTE: Record<ViewMode, string> = {
   "3d": "/embeddings",
-  "force": "/force-layout",
-  "distribution": "/distribution-chart",
-  "samples": "/paper-explorer",
-  "heatmap": "/heatmap",
-  "stacked": "/stacked-chart",
+  force: "/force-layout",
+  distribution: "/distribution-chart",
+  samples: "/paper-explorer",
+  heatmap: "/heatmap",
+  stacked: "/stacked-chart",
 };
 
 export const ROUTE_TO_VIEW_MODE: Record<string, ViewMode> = {
@@ -27,7 +33,10 @@ export function getViewModeFromPath(path: string): ViewMode {
   return ROUTE_TO_VIEW_MODE[path] || "3d";
 }
 
-export function getPathFromViewMode(viewMode: ViewMode, paperIndex?: number): string {
+export function getPathFromViewMode(
+  viewMode: ViewMode,
+  paperIndex?: number,
+): string {
   const basePath = VIEW_MODE_TO_ROUTE[viewMode];
   if (viewMode === "samples" && paperIndex !== undefined) {
     // Convert 0-based internal index to 1-based URL index for human readability
