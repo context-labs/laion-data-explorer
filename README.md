@@ -1,6 +1,8 @@
-# LAION Dataset Explorer
+# LAION Science Dataset Explorer
 
 Interactive visualization and exploration of scientific papers from the LAION dataset.
+
+View the live explorer at [https://laion.inference.net](https://laion.inference.net).
 
 ## Overview
 
@@ -43,6 +45,28 @@ task db:setup
 
 This will download the SQLite database to `backend/data/db.sqlite`.
 
+### 2. Run the Application
+
+Run the backend and frontend in separate terminals:
+
+**Backend (Terminal 1):**
+
+```bash
+task backend:dev
+```
+
+**Frontend (Terminal 2):**
+
+```bash
+task frontend:dev
+```
+
+The application will be available at:
+
+- Frontend: `http://localhost:5173`
+- API: `http://localhost:8787`
+- API Docs: `http://localhost:8787/docs`
+
 ## Data Pipeline
 
 > The code for the data pipeline that we used to construct this dataset is not yet open source, mostly because it was setup for a one-time process and not production-ready.
@@ -72,28 +96,6 @@ However, the general process was:
 - Applies manually reviewed, domain-specific cluster labels
 - Improves interpretability over automated TF-IDF labels
 
-### 2. Run the Application
-
-Run the backend and frontend in separate terminals:
-
-**Backend (Terminal 1):**
-
-```bash
-task backend:dev
-```
-
-**Frontend (Terminal 2):**
-
-```bash
-task frontend:dev
-```
-
-The application will be available at:
-
-- Frontend: `http://localhost:5173`
-- API: `http://localhost:8787`
-- API Docs: `http://localhost:8787/docs`
-
 ## Deployment
 
 Deploy to Cloudflare:
@@ -103,6 +105,30 @@ task deploy
 ```
 
 This will prompt you to deploy the backend API and/or frontend.
+
+## Contributing
+
+We welcome contributions to this project! Here's what you should know:
+
+**Bug Fixes & Minor Improvements**
+
+- Bug fixes are always welcome! Please submit a PR with a clear description of the issue and fix.
+- Minor improvements to documentation, code quality, or performance are appreciated.
+
+**New Features**
+
+- This project is intentionally scoped as a one-time preview of this dataset.
+- We are generally not planning to greatly expand the functionality beyond its current scope.
+- If you want to add significant new features, we encourage you to fork the project and build on it!
+
+**Before Submitting a PR**
+
+- Ensure your code passes linting and formatting checks:
+  ```bash
+  task check
+  ```
+- Keep changes focused and well-documented.
+- Test your changes with sample data when applicable.
 
 ## License
 
