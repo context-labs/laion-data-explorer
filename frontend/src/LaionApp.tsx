@@ -408,14 +408,10 @@ export default function LaionApp() {
       });
   }, []);
 
-  // Force 3D view on mobile (or allow force view)
+  // Force embeddings view on mobile regardless of URL
   useEffect(() => {
     const checkMobile = () => {
-      if (
-        window.innerWidth < 1024 &&
-        viewMode !== "3d" &&
-        viewMode !== "force"
-      ) {
+      if (window.innerWidth < 1024 && viewMode !== "3d") {
         setViewMode("3d");
       }
     };
