@@ -626,9 +626,7 @@ export default function LaionApp() {
           `}
         >
           {loading ? (
-            <span className="text-sm text-muted-foreground">
-              Loading visualization...
-            </span>
+            <span className="text-sm text-muted-foreground">Loading...</span>
           ) : viewMode === "3d" ? (
             <Select
               value={layoutType}
@@ -923,7 +921,19 @@ export default function LaionApp() {
             <main className="flex-1 overflow-hidden bg-background p-0">
               {loading ? (
                 <div className="flex h-full items-center justify-center">
-                  <Skeleton className="mx-auto h-96 w-96 rounded-full" />
+                  <div className="relative">
+                    <Skeleton className="h-96 w-96 rounded-full" />
+                    <span
+                      className={`
+                        absolute left-1/2 top-1/2 -translate-x-1/2
+                        -translate-y-1/2 text-base text-muted-foreground
+
+                        lg:hidden
+                      `}
+                    >
+                      Loading Visualization...
+                    </span>
+                  </div>
                 </div>
               ) : (
                 <ClusterVisualization
