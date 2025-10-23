@@ -104,45 +104,6 @@ task deploy
 
 This will prompt you to deploy the backend API and/or frontend.
 
-## Development Tasks
-
-This project uses [Task](https://taskfile.dev/) for common development tasks:
-
-```bash
-# Setup dependencies
-task setup
-
-# Download database from R2
-task db:setup
-
-# Run backend dev server
-task backend:dev
-
-# Run frontend dev server
-task frontend:dev
-
-# Deploy to Cloudflare
-task deploy
-
-# Format code
-task format
-
-# Check formatting
-task format:check
-
-# Lint code
-task lint
-
-# See all available tasks
-task --list
-```
-
-## Links
-
-- **Production**: [Your deployed URL]
-- **API Documentation**: `http://localhost:8787/docs` (local)
-- **Cloudflare Dashboard**: https://dash.cloudflare.com/
-
 ## License
 
-n/a
+MIT License - see [LICENSE](LICENSE) file for details.
