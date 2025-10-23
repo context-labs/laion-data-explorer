@@ -23,6 +23,13 @@ tasks:
         cd backend;
         uv sync
 
+  db:setup:
+    desc: Download database from R2
+    cmds:
+      - |
+        cd backend;
+        ./download_db.sh
+
   backend:dev:
     desc: Run local dev server (Python)
     cmds:
