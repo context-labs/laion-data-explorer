@@ -12,7 +12,7 @@ interface ClusterLegendProps {
   onSelectRandom: () => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
-  viewMode: "3d" | "heatmap" | "stacked" | "distribution" | "samples";
+  viewMode: "3d" | "heatmap" | "stacked" | "distribution" | "samples" | "force";
   paperSearchQuery: string;
   onPaperSearchChange: (query: string) => void;
   onPaperSearchSubmit: (e: React.FormEvent) => void;

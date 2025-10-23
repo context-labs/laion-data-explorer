@@ -33,6 +33,7 @@ import {
   LayoutGridIcon,
   Menu,
   MicroscopeIcon,
+  NetworkIcon,
   NotebookTextIcon,
   PlusIcon,
   SunMoonIcon,
@@ -44,6 +45,7 @@ import LaionLightLogo from "./assets/logos/Laion-light.svg";
 import { ClusterLegend } from "./components/ClusterLegend";
 import { ClusterVisualization } from "./components/ClusterVisualization";
 import { DistributionChart } from "./components/DistributionChart";
+import { ForceDirectedCluster } from "./components/ForceDirectedCluster";
 import { LearnMoreContent } from "./components/LearnMoreContent";
 import { LearnMoreSheet } from "./components/LearnMoreSheet";
 import { PaperDetail } from "./components/PaperDetail";
@@ -141,7 +143,7 @@ function SwipeableSheetContent({
 }
 
 type MobileNavigationProps = {
-  viewMode: "3d" | "heatmap" | "stacked" | "distribution" | "samples";
+  viewMode: "3d" | "heatmap" | "stacked" | "distribution" | "samples" | "force";
   onRandomPaper: () => void;
   clusters: ClusterInfo[];
   selectedClusterIds: Set<number>;
@@ -292,7 +294,7 @@ export default function LaionApp() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [allPapers, setAllPapers] = useState<PaperSummary[]>([]);
   const [viewMode, setViewMode] = useState<
-    "3d" | "heatmap" | "stacked" | "distribution" | "samples"
+    "3d" | "heatmap" | "stacked" | "distribution" | "samples" | "force"
   >("3d");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [layoutType, setLayoutType] = useState<LayoutType>("original");
@@ -377,10 +379,14 @@ export default function LaionApp() {
       });
   }, []);
 
-  // Force 3D view on mobile
+  // Force 3D view on mobile (or allow force view)
   useEffect(() => {
     const checkMobile = () => {
-      if (window.innerWidth < 1024 && viewMode !== "3d") {
+      if (
+        window.innerWidth < 1024 &&
+        viewMode !== "3d" &&
+        viewMode !== "force"
+      ) {
         setViewMode("3d");
       }
     };
@@ -767,6 +773,16 @@ export default function LaionApp() {
               </Button>
               <Button
                 type="button"
+                onClick={() => setViewMode("force")}
+                variant={viewMode === "force" ? "default" : "outline"}
+                size="xs"
+                className="flex w-fit items-center justify-start gap-1.5"
+              >
+                <NetworkIcon className="h-3.5 w-3.5" />
+                Force Graph
+              </Button>
+              <Button
+                type="button"
                 onClick={() => setViewMode("distribution")}
                 variant={viewMode === "distribution" ? "default" : "outline"}
                 size="xs"
@@ -1001,6 +1017,33 @@ export default function LaionApp() {
         ) : viewMode === "samples" ? (
           <main className="flex-1 overflow-hidden bg-background">
             <PaperSampleViewer clusters={clusters} />
+          </main>
+        ) : viewMode === "force" ? (
+          <main className="flex-1 overflow-hidden bg-background">
+            {loading ? (
+              <div className="flex h-full items-center justify-center">
+                <div className="relative">
+                  <Skeleton className="h-96 w-96 rounded-full" />
+                  <span
+                    className={`
+                      absolute left-1/2 top-1/2 -translate-x-1/2
+                      -translate-y-1/2 text-base text-muted-foreground
+
+                      lg:hidden
+                    `}
+                  >
+                    Loading Force Graph...
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <ForceDirectedCluster
+                papers={papers}
+                clusters={clusters}
+                onPaperClick={(paperId) => setSelectedPaperId(paperId)}
+                selectedClusterIds={selectedClusterIds}
+              />
+            )}
           </main>
         ) : (
           <main className="flex-1 overflow-hidden bg-background">
