@@ -1,16 +1,27 @@
 import { Button, CodeBlock, Row, Skeleton } from "~/ui";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ClusterInfo, PaperSample, PaperSampleList } from "../types";
 import { getApiUrl } from "../utils/api";
+import {
+  getPaperIndexFromPath,
+  getPathFromViewMode,
+} from "../utils/routeMapping";
 
 interface PaperSampleViewerProps {
   clusters: ClusterInfo[];
+  currentPath: string;
+  onPathChange: (path: string) => void;
 }
 
-export function PaperSampleViewer({ clusters }: PaperSampleViewerProps) {
+export function PaperSampleViewer({
+  clusters,
+  currentPath,
+  onPathChange,
+}: PaperSampleViewerProps) {
   const [sampleIds, setSampleIds] = useState<number[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const initialIndexFromPath = getPaperIndexFromPath(currentPath);
+  const [currentIndex, setCurrentIndex] = useState(initialIndexFromPath ?? 0);
   const [loadingSampleIds, setLoadingSampleIds] = useState(true);
   const [loadingSample, setLoadingSample] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +29,38 @@ export function PaperSampleViewer({ clusters }: PaperSampleViewerProps) {
     new Map(),
   );
   const [jumpToIndex, setJumpToIndex] = useState("");
+  const lastSetPathRef = useRef<string | null>(null);
+  const lastSetIndexRef = useRef<number | null>(null);
+
+  // Sync URL changes to local state (for browser back/forward)
+  useEffect(() => {
+    const indexFromPath = getPaperIndexFromPath(currentPath);
+    const newIndex = indexFromPath ?? 0;
+
+    // Only update if the URL actually changed to a different index
+    if (newIndex !== currentIndex && currentPath !== lastSetPathRef.current) {
+      lastSetIndexRef.current = newIndex;
+      setCurrentIndex(newIndex);
+    }
+  }, [currentPath, currentIndex]);
+
+  // Update URL when currentIndex changes (skip if we just set it from URL)
+  useEffect(() => {
+    // Skip if this index change came from the URL
+    if (lastSetIndexRef.current === currentIndex) {
+      lastSetIndexRef.current = null;
+      return;
+    }
+
+    const newPath = getPathFromViewMode("samples", currentIndex);
+
+    // Only update URL if it's actually different
+    if (currentPath !== newPath) {
+      lastSetPathRef.current = newPath;
+      onPathChange(newPath);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex]);
 
   // Fetch list of sample IDs on mount
   useEffect(() => {

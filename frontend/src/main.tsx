@@ -5,6 +5,7 @@ import { Provider as JotaiProvider } from "jotai/react";
 import { PostHogProvider } from "posthog-js/react";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { Router } from "wouter";
 import { LaionHotKeys } from "./components/LaionHotKeys";
 import LaionApp from "./LaionApp";
 import "./index.css";
@@ -18,19 +19,21 @@ const options = {
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <PostHogProvider
-      apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
-      options={options}
-    >
-      <JotaiProvider store={jotaiStore}>
-        <ThemeProvider
-          storage={createLocalStorage()}
-          storageKey={LOCAL_STORAGE_KEYS.THEME}
-        >
-          <LaionHotKeys />
-          <LaionApp />
-        </ThemeProvider>
-      </JotaiProvider>
-    </PostHogProvider>
+    <Router>
+      <PostHogProvider
+        apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+        options={options}
+      >
+        <JotaiProvider store={jotaiStore}>
+          <ThemeProvider
+            storage={createLocalStorage()}
+            storageKey={LOCAL_STORAGE_KEYS.THEME}
+          >
+            <LaionHotKeys />
+            <LaionApp />
+          </ThemeProvider>
+        </JotaiProvider>
+      </PostHogProvider>
+    </Router>
   </React.StrictMode>,
 );

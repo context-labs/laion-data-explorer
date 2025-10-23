@@ -38,6 +38,12 @@ import {
   PlusIcon,
   SunMoonIcon,
 } from "lucide-react";
+import { useLocation } from "wouter";
+import {
+  getPathFromViewMode,
+  getViewModeFromPath,
+  type ViewMode,
+} from "./utils/routeMapping";
 import { usePostHog } from "posthog-js/react";
 import { useEffect, useState } from "react";
 import LaionDarkLogo from "./assets/logos/Laion-dark.svg";
@@ -282,6 +288,8 @@ function MobileNavigation({
 
 export default function LaionApp() {
   const posthog = usePostHog();
+  const [location, setLocation] = useLocation();
+
   const [papers, setPapers] = useState<PaperSummary[]>([]);
   const [clusters, setClusters] = useState<ClusterInfo[]>([]);
   const [selectedPaperId, setSelectedPaperId] = useState<number | null>(null);
@@ -293,9 +301,9 @@ export default function LaionApp() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [allPapers, setAllPapers] = useState<PaperSummary[]>([]);
-  const [viewMode, setViewMode] = useState<
-    "3d" | "heatmap" | "stacked" | "distribution" | "samples" | "force"
-  >("3d");
+  const [viewMode, setViewMode] = useState<ViewMode>(() =>
+    getViewModeFromPath(location),
+  );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [layoutType, setLayoutType] = useState<LayoutType>("original");
   const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(() => {
@@ -342,6 +350,27 @@ export default function LaionApp() {
       localStorage.setItem("hasSeenWelcomeDialog", "true");
     }
   }, [welcomeDialogOpen]);
+
+  // Sync viewMode changes to URL (except for samples mode, which manages its own URL with paper index)
+  useEffect(() => {
+    // Skip URL updates for samples mode - PaperSampleViewer manages its own URL including paper index
+    if (viewMode === "samples") {
+      return;
+    }
+
+    const newPath = getPathFromViewMode(viewMode);
+    if (location !== newPath) {
+      setLocation(newPath);
+    }
+  }, [viewMode, location, setLocation]);
+
+  // Sync URL changes to viewMode (for browser back/forward)
+  useEffect(() => {
+    const newViewMode = getViewModeFromPath(location);
+    if (newViewMode !== viewMode) {
+      setViewMode(newViewMode);
+    }
+  }, [location]);
 
   // Track when user opens their first paper detail
   useEffect(() => {
@@ -969,10 +998,19 @@ export default function LaionApp() {
         ) : viewMode === "distribution" ? (
           <main className="flex-1 overflow-hidden bg-background">
             {loading ? (
-              <div className="flex h-full items-center justify-center p-8">
-                <div className="w-full max-w-4xl space-y-4">
-                  <Skeleton className="h-12 w-64" />
-                  <Skeleton className="h-[500px] w-full" />
+              <div className="flex h-full items-center justify-center">
+                <div className="relative">
+                  <Skeleton className="h-96 w-96 rounded-full" />
+                  <span
+                    className={`
+                      absolute left-1/2 top-1/2 -translate-x-1/2
+                      -translate-y-1/2 text-base text-muted-foreground
+
+                      lg:hidden
+                    `}
+                  >
+                    Loading Distribution Chart...
+                  </span>
                 </div>
               </div>
             ) : (
@@ -990,10 +1028,19 @@ export default function LaionApp() {
         ) : viewMode === "heatmap" ? (
           <main className="flex-1 overflow-hidden bg-background">
             {loading ? (
-              <div className="flex h-full items-center justify-center p-8">
-                <div className="w-full max-w-6xl space-y-4">
-                  <Skeleton className="h-12 w-64" />
-                  <Skeleton className="h-[600px] w-full" />
+              <div className="flex h-full items-center justify-center">
+                <div className="relative">
+                  <Skeleton className="h-96 w-96 rounded-full" />
+                  <span
+                    className={`
+                      absolute left-1/2 top-1/2 -translate-x-1/2
+                      -translate-y-1/2 text-base text-muted-foreground
+
+                      lg:hidden
+                    `}
+                  >
+                    Loading Heatmap...
+                  </span>
                 </div>
               </div>
             ) : (
@@ -1016,7 +1063,11 @@ export default function LaionApp() {
           </main>
         ) : viewMode === "samples" ? (
           <main className="flex-1 overflow-hidden bg-background">
-            <PaperSampleViewer clusters={clusters} />
+            <PaperSampleViewer
+              clusters={clusters}
+              currentPath={location}
+              onPathChange={setLocation}
+            />
           </main>
         ) : viewMode === "force" ? (
           <main className="flex-1 overflow-hidden bg-background">
@@ -1048,10 +1099,19 @@ export default function LaionApp() {
         ) : (
           <main className="flex-1 overflow-hidden bg-background">
             {loading ? (
-              <div className="flex h-full items-center justify-center p-8">
-                <div className="w-full max-w-6xl space-y-4">
-                  <Skeleton className="h-12 w-64" />
-                  <Skeleton className="h-[600px] w-full" />
+              <div className="flex h-full items-center justify-center">
+                <div className="relative">
+                  <Skeleton className="h-96 w-96 rounded-full" />
+                  <span
+                    className={`
+                      absolute left-1/2 top-1/2 -translate-x-1/2
+                      -translate-y-1/2 text-base text-muted-foreground
+
+                      lg:hidden
+                    `}
+                  >
+                    Loading Stacked Chart...
+                  </span>
                 </div>
               </div>
             ) : (
