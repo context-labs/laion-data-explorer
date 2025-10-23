@@ -320,6 +320,7 @@ export default function LaionApp() {
   const [interestedInFullDataset, setInterestedInFullDataset] = useState(true);
   const [interestedInModelTraining, setInterestedInModelTraining] =
     useState(false);
+  const [hasOpenedPaperDetail, setHasOpenedPaperDetail] = useState(false);
 
   // Heatmap controls
   const [heatmapMinYear, setHeatmapMinYear] = useState(1990);
@@ -350,6 +351,13 @@ export default function LaionApp() {
       localStorage.setItem("hasSeenWelcomeDialog", "true");
     }
   }, [welcomeDialogOpen]);
+
+  // Track when user opens their first paper detail
+  useEffect(() => {
+    if (selectedPaperId !== null && !hasOpenedPaperDetail) {
+      setHasOpenedPaperDetail(true);
+    }
+  }, [selectedPaperId, hasOpenedPaperDetail]);
 
   // Trigger window resize when sidebar is collapsed/expanded to force plot to resize
   useEffect(() => {
@@ -506,7 +514,8 @@ export default function LaionApp() {
           setInterestedInModelTraining(false);
         }, 300); // Wait for dialog close animation
       }, 1500); // Show success for 1.5 seconds
-    } catch (err) {
+    } catch (err: unknown) {
+      console.error("Error submitting email", err);
       setEmailError("Failed to submit. Please try again.");
       setEmailSubmitting(false);
     }
@@ -529,6 +538,22 @@ export default function LaionApp() {
 
   return (
     <div className="flex h-screen flex-col bg-background">
+      <style>{`
+        @keyframes shimmer {
+          0% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+        .shimmer-text {
+          animation: shimmer 2s ease-in-out infinite;
+        }
+      `}</style>
       <header
         className={cn(`
           flex items-center justify-between border-b border-border bg-background
@@ -744,6 +769,17 @@ export default function LaionApp() {
                 <LayoutGridIcon className="h-3.5 w-3.5" />
                 Heatmap
               </Button>
+              {viewMode === "3d" && (
+                <span
+                  className={`
+                    ml-2 text-xs text-muted-foreground
+
+                    ${!hasOpenedPaperDetail ? "shimmer-text" : ""}
+                  `}
+                >
+                  Click + Ctrl/Meta Key on a cluster node to open paper details
+                </span>
+              )}
             </div>
             <Row className="items-center gap-4">
               {!loading && viewMode === "3d" && (
@@ -960,7 +996,12 @@ export default function LaionApp() {
       <PaperDetail
         paperId={selectedPaperId}
         onClose={() => setSelectedPaperId(null)}
-        onPaperClick={(paperId) => setSelectedPaperId(paperId)}
+        onPaperClick={(paperId) => {
+          setSelectedPaperId(paperId);
+          if (!hasOpenedPaperDetail) {
+            setHasOpenedPaperDetail(true);
+          }
+        }}
         clusters={clusters}
       />
       <DialogRoot open={welcomeDialogOpen} onOpenChange={setWelcomeDialogOpen}>
@@ -1016,9 +1057,20 @@ export default function LaionApp() {
                 </DialogDescription>
               </DialogHeader>
               <div className="flex items-center justify-center p-8">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                <div
+                  className={`
+                    flex h-16 w-16 items-center justify-center rounded-full
+                    bg-green-100
+
+                    dark:bg-green-900
+                  `}
+                >
                   <svg
-                    className="h-8 w-8 text-green-600 dark:text-green-400"
+                    className={`
+                      h-8 w-8 text-green-600
+
+                      dark:text-green-400
+                    `}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1085,7 +1137,10 @@ export default function LaionApp() {
                         }
                         disabled={emailSubmitting}
                       />
-                      <Label htmlFor="model-training" className="cursor-pointer">
+                      <Label
+                        htmlFor="model-training"
+                        className="cursor-pointer"
+                      >
                         I'm interested in custom model-training
                       </Label>
                     </div>

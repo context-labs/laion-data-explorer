@@ -576,8 +576,6 @@ export function ClusterVisualization({
             }}
           >
             Right click + drag to pan | Press 'R' to reset viewpoint
-            <br />
-            Click + Ctrl/Meta Key to open paper details
           </div>
         </div>
       </div>
