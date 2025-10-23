@@ -30,7 +30,7 @@ export function getViewModeFromPath(path: string): ViewMode {
   if (path.startsWith("/paper-explorer")) {
     return "samples";
   }
-  return ROUTE_TO_VIEW_MODE[path] || "3d";
+  return ROUTE_TO_VIEW_MODE[path] ?? "3d";
 }
 
 export function getPathFromViewMode(
@@ -47,7 +47,7 @@ export function getPathFromViewMode(
 
 export function getPaperIndexFromPath(path: string): number | null {
   const match = path.match(/^\/paper-explorer\/(\d+)$/);
-  if (match && match[1]) {
+  if (match?.[1]) {
     const urlIndex = parseInt(match[1], 10);
     if (isNaN(urlIndex) || urlIndex < 1) {
       return null;

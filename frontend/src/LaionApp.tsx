@@ -66,11 +66,8 @@ import type {
 } from "./types";
 import { fetchCompressed, getApiUrl } from "./utils/api";
 import type { LayoutType } from "./utils/layoutTransforms";
-import {
-  getPathFromViewMode,
-  getViewModeFromPath,
-  type ViewMode,
-} from "./utils/routeMapping";
+import { getPathFromViewMode, getViewModeFromPath } from "./utils/routeMapping";
+import type { ViewMode } from "./utils/routeMapping";
 
 type SwipeableSheetContentProps = {
   children: React.ReactNode;
@@ -370,7 +367,7 @@ export default function LaionApp() {
     if (newViewMode !== viewMode) {
       setViewMode(newViewMode);
     }
-  }, [location]);
+  }, [location, viewMode]);
 
   // Track when user opens their first paper detail
   useEffect(() => {
