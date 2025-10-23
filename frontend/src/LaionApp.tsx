@@ -197,35 +197,24 @@ function MobileNavigation({
                 View on desktop for additional visualizations and more controls.
               </p>
               <Button
-                variant="outline"
+                type="button"
+                onClick={() => {
+                  onEmailCTAClick();
+                  setMobileMenuOpen(false);
+                }}
+                variant="default"
                 size="xs"
-                className="mt-2 flex w-full items-center gap-2 font-semibold"
+                className="mt-4 flex w-full items-center justify-center gap-2"
               >
-                Learn More
+                Interested in the full dataset?
               </Button>
             </div>
           </div>
         </div>
 
-        {/* CTA for full dataset */}
-        <div className="border-t pt-4">
-          <Button
-            type="button"
-            onClick={() => {
-              onEmailCTAClick();
-              setMobileMenuOpen(false);
-            }}
-            variant="default"
-            size="xs"
-            className="flex w-full items-center justify-center gap-2"
-          >
-            Interested in the full dataset?
-          </Button>
-        </div>
-
         {/* Controls for 3D View */}
         {!loading && (
-          <div className="space-y-3 border-t pt-4">
+          <div className="space-y-3 pt-4">
             <Button
               type="button"
               onClick={() => {
@@ -243,7 +232,7 @@ function MobileNavigation({
         )}
 
         {/* Theme Toggle */}
-        <div className="border-t pt-4">
+        <div>
           <ThemeToggle
             trigger={
               <Button
