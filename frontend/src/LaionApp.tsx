@@ -625,7 +625,11 @@ export default function LaionApp() {
             flex items-center justify-between border-t border-border px-4 py-2
           `}
         >
-          {!loading && viewMode === "3d" ? (
+          {loading ? (
+            <span className="text-sm text-muted-foreground">
+              Loading visualization...
+            </span>
+          ) : viewMode === "3d" ? (
             <Select
               value={layoutType}
               onValueChange={(value) => setLayoutType(value as LayoutType)}
