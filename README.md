@@ -1,6 +1,8 @@
 # LAION Science Dataset Explorer
 
-Interactive visualization and exploration of scientific papers from the LAION dataset.
+Interactive visualization and exploration of scientific papers from the LAION open science dataset.
+
+This project is a collaboration between [Inference.net](https://inference.net) and [LAION](https://laion.ai). LAION curated the original dataset which is about ~100m scrapped scientific and research articles and Inference.net fine-tuned a custom model to extract structured summaries from the articles. This repo contains a visual explorer for a small subset of the extracted dataset.
 
 View the live explorer at [https://laion.inference.net](https://laion.inference.net).
 
