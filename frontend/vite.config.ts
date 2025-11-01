@@ -16,12 +16,7 @@ export default defineConfig({
   server: {
     host: true, // Expose on local network
     port: 5173,
-    allowedHosts: [
-      "localhost",
-      "127.0.0.1",
-      "0.0.0.0",
-      "exiguously-breathless-prudence.ngrok-free.dev",
-    ],
+    allowedHosts: ["localhost", "127.0.0.1", "0.0.0.0"],
     proxy: {
       "/api": {
         target: "http://localhost:8787",
